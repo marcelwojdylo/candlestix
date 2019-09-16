@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import alphaVantageService from '../services/alpha-vantage-service.js';
 import dataConverter from '../helpers/data-converter.js'
 import P5Wrapper from 'react-p5-wrapper';
-import sketch from '../sketches/sketch.js'
+import sketch from '../sketches/sketch.js';
 
 class AlphaVantagePlayground extends Component {
 
@@ -11,20 +11,32 @@ class AlphaVantagePlayground extends Component {
         interval: "1min",
         outputsize: "compact",
         dataFromApi: {},
-        candlestickData: [],
+        chartData: [],
         canvasWidth: 300,
         canvasHeight: 300,
+        vwap: {}
     }
 
     getDataFromApi = (symbol, interval, outputsize) => {
+        let size;
+        if (outputsize === 'compact') {
+            size = 100;
+        } else {
+            size = 390;
+        }
         alphaVantageService.getIntraday(symbol, interval, outputsize)
         .then(response => {
-            const data = dataConverter.getCandlestickData(response);
-            // console.log("getDataFromApi", data)
             this.setState({
-                dataFromApi: response,
-                candlestickData: data
+                dataFromApi: response.reverse().slice(0,size),
+                chartData: dataConverter.convertDataForCharting(response)
             })
+        })
+        alphaVantageService.getVWAP(symbol, interval)
+        .then(response => {
+            console.log(response);
+            // this.setState({
+            //     vwap: response,
+            // })
         })
     }
 
@@ -50,9 +62,9 @@ class AlphaVantagePlayground extends Component {
             interval, 
             outputsize, 
             dataFromApi, 
-            candlestickData
+            chartData
         } = this.state;
-        // console.log("render data", candlestickData);
+        // console.log("render data", chartData);
         // console.log("render ts", timeSeries);
         return (
             <div>
@@ -72,7 +84,7 @@ class AlphaVantagePlayground extends Component {
                     </select>
                     <input type="submit"></input>
                 </form>
-                <P5Wrapper sketch={sketch} height="600" width="1200" rotation="45" data={candlestickData}/>
+                <P5Wrapper sketch={sketch} height="600" width="1400" data={chartData}/>
                 <section>
                 {
                     dataFromApi.length > 0

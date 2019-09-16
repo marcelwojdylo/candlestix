@@ -19,6 +19,15 @@ class AlphaVantageService {
         .catch(error => console.log(error))
         return Object.entries(data)
     }
+
+    getVWAP = async (symbol, interval) => {
+        const data = await this.api.get(
+            `?function=VWAP&symbol=${symbol}&interval=${interval}&apikey=${this.apiKey}`
+        )
+        .then(response => response)
+        .catch(error => console.log(error))
+        return data;
+    }
 }
 
 const alphaVantageService = new AlphaVantageService();
