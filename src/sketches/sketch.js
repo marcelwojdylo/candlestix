@@ -196,7 +196,7 @@ export default function sketch (p) {
     
     p.setup = function () {
         p.createCanvas(canvasWidth, canvasHeight);
-        p.noLoop();
+        // p.noLoop();
         p.textFont(robotoThin, 12);
     };
     
@@ -210,9 +210,9 @@ export default function sketch (p) {
             drawVolumeChart();
         }
         p.pop();
-        // if (p.keyIsPressed) {
-        //     keyPressed();
-        // }
+        if (p.keyIsPressed) {
+            keyPressed();
+        }
     };
     
     

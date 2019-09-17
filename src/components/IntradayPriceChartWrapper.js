@@ -37,7 +37,7 @@ export class IntradayPriceChartWrapper extends Component {
         return (
             <div className="intradayPriceChartWrapper" ref={r => this.wrapperDiv = r}>
                 {
-                    width !== 0 ? <P5Wrapper sketch={IntradayPriceChart} width={width} height={height} data={this.props.data}/> : <h3>Resize pending</h3>
+                    width !== 0 ? <P5Wrapper sketch={IntradayPriceChart} width={width} height={height} data={this.props.data} mode={this.props.displayMode}/> : <h3>Resize pending</h3>
                 }
             </div>
         )

@@ -8,9 +8,10 @@ export class Intraday extends Component {
 
     state = {
         symbol: "MSFT",
-        interval: "1min",
+        interval: "5min",
         outputsize: "full",
-        data: []
+        data: [],
+        vwap: [],
     }
 
     componentDidMount = () => {
@@ -21,8 +22,18 @@ export class Intraday extends Component {
     fetchDataFromApi = (symbol, interval, outputsize) => {
         alphaVantageService.getIntraday(symbol, interval, outputsize)
         .then(response => {
+            const intradayData = dataConverter.convertDataForCharting(response);
+            // console.log("converted data", intradayData)
             this.setState({
-                data: dataConverter.convertDataForCharting(response),
+                intradayData: intradayData,
+            })
+        })
+        alphaVantageService.getVWAP(symbol, interval)
+        .then(response => {
+            const vwap = dataConverter.convertVWAPForCharting(response);
+            // console.log("converted vwap", vwap)
+            this.setState({
+                vwap: vwap,
             })
         })
     }
@@ -38,13 +49,24 @@ export class Intraday extends Component {
         this.fetchDataFromApi(symbol, interval, outputsize)
     }
 
+    toggleDisplayMode = (event) => {
+        event.preventDefault();
+        this.setState({displayMode:this.state.displayMode==="light"?"dark":"light"})
+    }
+
     render() {
         const {
             symbol,
             interval,
             outputsize,
-            data
+            intradayData,
+            vwap,
         } = this.state;
+        const {
+            displayMode,
+            toggleDisplayMode
+        } = this.props;
+        // console.log("Intraday.js state.intradayData", intradayData)
         return (
             <div className="intraday">
                 <IntradayQuery 
@@ -53,8 +75,11 @@ export class Intraday extends Component {
                     outputsize={outputsize} 
                     handleChange={this.handleChange}
                     handleSubmit={this.handleSubmit}
+                    toggleDisplayMode={toggleDisplayMode}
                 />
-                <IntradayView data={data}/>
+                {
+                    intradayData && vwap && displayMode && <IntradayView intradayData={intradayData} vwap={vwap} displayMode={displayMode}/>
+                }   
             </div>
         )
     }

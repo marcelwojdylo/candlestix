@@ -24,9 +24,9 @@ class AlphaVantageService {
         const data = await this.api.get(
             `?function=VWAP&symbol=${symbol}&interval=${interval}&apikey=${this.apiKey}`
         )
-        .then(response => response)
+        .then(response => response.data['Technical Analysis: VWAP'])
         .catch(error => console.log(error))
-        return data;
+        return Object.entries(data);
     }
 }
 

@@ -4,7 +4,9 @@ export default function intradayVolumeChart (p) {
     let canvasHeight = 0;
     let chartData;
     let chartMetaData;
-    let chartDimensions;
+    let volumeChartDimensions;
+    let style;
+    let displayMode;
 
     let styleDark = {
         backgroundColor: [10],
@@ -27,10 +29,9 @@ export default function intradayVolumeChart (p) {
         green: [255],
         red: [209, 19, 57],
     }    
-    let mode = "light";
-    let style = mode === "light" ? styleLight : styleDark;
 
-    function setChartDimensions () {
+
+    function setVolumeChartDimensions () {
         return {
             marginLeft: canvasWidth*0.01,
             marginTop: canvasHeight*0.05,
@@ -40,27 +41,27 @@ export default function intradayVolumeChart (p) {
         }
     }
 
-    function drawChart () {
-        drawChartBackground();
-        drawTimeIndicators();
+    function drawVolumeChart () {
+        drawVolumeChartBackground();
+        drawVolumeChartTimeIndicators();
         drawVolumeBars();
     }
 
-    function drawChartBackground () {
+    function drawVolumeChartBackground () {
         p.noStroke();
         p.fill(...style.chartBackgroundColor)
         p.rect(
-            chartDimensions.marginLeft,
-            chartDimensions.marginTop,
-            chartDimensions.width,
-            chartDimensions.height
+            volumeChartDimensions.marginLeft,
+            volumeChartDimensions.marginTop,
+            volumeChartDimensions.width,
+            volumeChartDimensions.height
             )
     }
 
     function drawVolumeBars () {
         for (let i = 0; i < chartData.length; i++) {
             
-            if (mode === "light") {
+            if (displayMode === "light") {
                 p.stroke(...style.volumeBarStrokeColor)
                 p.strokeWeight(style.volumeBarStrokeWeight)
                 if (chartData[i]["close"]["value"]>chartData[i]["open"]["value"]) {
@@ -80,26 +81,26 @@ export default function intradayVolumeChart (p) {
 
             const columnSpan = getColumnSpan(i);
             const volumeBarWidth = columnSpan.width * 0.6;
-            const volumeBarHeight = chartData[i].volume.percentageOfSpread*chartDimensions.height;
+            const volumeBarHeight = chartData[i].volume.percentageOfSpread*volumeChartDimensions.height;
             const volumeBarAnchor = {
                 x: columnSpan.middle-volumeBarWidth/2,
-                y: chartDimensions.marginTop+chartDimensions.height-volumeBarHeight
+                y: volumeChartDimensions.marginTop+volumeChartDimensions.height-volumeBarHeight
             }
 
             p.rect(volumeBarAnchor.x, volumeBarAnchor.y, volumeBarWidth, volumeBarHeight)
         }
     }
 
-    function drawTimeIndicators () {
+    function drawVolumeChartTimeIndicators () {
         for (let i = 0; i<chartData.length; i++) {
             const timestamp = chartData[i]["timestamp"];
             if (parseInt(timestamp.slice(14,16)) % 5 === 0) {
                 const columnSpan = getColumnSpan(i);
-                const labelAnchor = {x: columnSpan.middle, y: chartDimensions.marginTop+chartDimensions.height+20}
+                const labelAnchor = {x: columnSpan.middle, y: volumeChartDimensions.marginTop+volumeChartDimensions.height+20}
                 const timeIndicator = {
                     x: columnSpan.middle,
-                    topY: chartDimensions.marginTop,
-                    bottomY: chartDimensions.marginTop+chartDimensions.height
+                    topY: volumeChartDimensions.marginTop,
+                    bottomY: volumeChartDimensions.marginTop+volumeChartDimensions.height
                 }
                 p.stroke(...style.indicatorColor);
                 p.strokeWeight(style.indicatorStrokeWeight)
@@ -109,8 +110,8 @@ export default function intradayVolumeChart (p) {
     }
 
     function getColumnSpan(index) {
-        const x1 = chartDimensions.marginLeft+(chartDimensions.width/chartData.length)*index;
-        const x2 = chartDimensions.marginLeft+(chartDimensions.width/chartData.length)*(index+1);
+        const x1 = volumeChartDimensions.marginLeft+(volumeChartDimensions.width/chartData.length)*index;
+        const x2 = volumeChartDimensions.marginLeft+(volumeChartDimensions.width/chartData.length)*(index+1);
         const middle = (x1+x2)/2;
         const width = x2 - x1;
         return {
@@ -122,12 +123,14 @@ export default function intradayVolumeChart (p) {
     }
 
     p.myCustomRedrawAccordingToNewPropsHandler = function (props) {
-        const {height, width, data} = props;
+        const {height, width, data, mode} = props;
         canvasWidth = width;
         canvasHeight = height;
         chartData = data.data;
         chartMetaData = data.metadata;
-        chartDimensions = setChartDimensions();
+        volumeChartDimensions = setVolumeChartDimensions();
+        displayMode = mode;
+        style = displayMode === "light" ? styleLight : styleDark;        
         p.redraw()
     };
 
@@ -141,10 +144,10 @@ export default function intradayVolumeChart (p) {
     p.draw = function () {
         if (canvasWidth !== 0) {
             p.createCanvas(canvasWidth, canvasHeight);
+            p.background(style.backgroundColor);
         }
-        p.background(style.backgroundColor);
         if (chartData) {
-            drawChart();
+            drawVolumeChart();
         }
     };    
 };

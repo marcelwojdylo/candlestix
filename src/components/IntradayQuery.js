@@ -2,9 +2,10 @@ import React, { Component } from 'react'
 
 export class IntradayQuery extends Component {
     render() {
-        const {symbol, interval, outputsize, handleChange, handleSubmit} = this.props;
+        const {symbol, interval, outputsize, handleChange, handleSubmit, toggleDisplayMode} = this.props;
         return (
             <form onSubmit={handleSubmit} className="intradayQuery">
+                <button onClick={toggleDisplayMode}></button>
                 <input name="symbol" value={symbol} onChange={handleChange}></input>
                 <select name="interval" value={interval} onChange={handleChange}>
                     <option value="1min">1 minute</option>

@@ -34,7 +34,7 @@ export class IntradayVolumeChartWrapper extends Component {
         } = this.state;
         return (
             <div className="intradayVolumeChartWrapper" ref={r => this.wrapperDiv = r}>
-                <P5Wrapper sketch={IntradayVolumeChart} width={width} height={height} data={this.props.data}/>                
+                <P5Wrapper sketch={IntradayVolumeChart} width={width} height={height} data={this.props.data}  mode={this.props.displayMode}/>                
             </div>
         )
     }

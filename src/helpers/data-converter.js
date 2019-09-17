@@ -1,7 +1,29 @@
 class DataConverter {
 
+    convertVWAPForCharting = (vwapFromApi) => {
+        const latestDate = vwapFromApi[0][0].slice(0,10);
+        // console.log("vwap latestate", latestDate);
+        let vwap = [];
+        for (let i = 0; vwapFromApi[i][0].slice(0,10) === latestDate; i++) {
+            vwap.push(parseFloat(vwapFromApi[i][1].VWAP))
+        }
+        // console.log("today's vwap", vwap)
+        vwap = vwap.reverse();
+        const domain = {min: Math.min(...vwap), max: Math.max(...vwap)};
+        for (let i = 0; i<vwap.length; i++) {
+            vwap[i] = {
+                "value": vwap[i],
+                "percentageOfSpread": this.getPercentageOfSpread(vwap[i], domain)
+            }
+        }
+        // console.log("vwap conversion result", vwap);
+        return vwap;
+    }
+
+
+
     convertDataForCharting = (dataFromApi) => {
-        const latestDate = dataFromApi.slice(0,1)[0][0].slice(0,10);
+        const latestDate = dataFromApi[0][0].slice(0,10);
         let data = [];
         for (let i = 0; dataFromApi[i][0].slice(0,10) === latestDate; i++) {
             data.push(
@@ -49,6 +71,7 @@ class DataConverter {
                 "priceDomain": priceDomain,
                 "volumeDomain": volumeDomain,
                 "priceThresholds": this.getPriceThresholds(priceDomain),
+                "dataLength": data.length
                 // "volumeThresholds": this.getVolumeThresholds(volumeDomain)
             },
             "data": data

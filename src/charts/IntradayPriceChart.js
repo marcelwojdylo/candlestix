@@ -6,6 +6,8 @@ export default function intradayPriceChart (p) {
     let chartMetaData;
     let chartDimensions;
     let robotoThin;
+    let style;
+    let displayMode;
 
     let styleDark = {
         backgroundColor: [10],
@@ -28,8 +30,7 @@ export default function intradayPriceChart (p) {
         green: [255],
         red: [209, 19, 57],
     }    
-    let mode = "light";
-    let style = mode === "light" ? styleLight : styleDark;
+
 
     function setChartDimensions () {
         return {
@@ -105,7 +106,7 @@ export default function intradayPriceChart (p) {
 
     function drawCandlesticks () {
         for (let i = 0; i<chartData.length; i++) {
-            if (mode === "light") {
+            if (displayMode === "light") {
                 p.stroke(...style.candlestickStrokeColor)
                 p.strokeWeight(style.candlestickStrokeWeight)
                 if (chartData[i]["close"]["value"]>chartData[i]["open"]["value"]) {
@@ -157,12 +158,14 @@ export default function intradayPriceChart (p) {
     }
 
     p.myCustomRedrawAccordingToNewPropsHandler = function (props) {
-        const {height, width, data} = props;
+        const {height, width, data, mode} = props;
         canvasWidth = width;
         canvasHeight = height;
         chartData = data.data;
         chartMetaData = data.metadata;
         chartDimensions = setChartDimensions();
+        displayMode = mode;
+        style = displayMode === "light" ? styleLight : styleDark;
         p.redraw()
     };
 
@@ -178,8 +181,8 @@ export default function intradayPriceChart (p) {
     p.draw = function () {
         if (canvasWidth !== 0) {
             p.createCanvas(canvasWidth, canvasHeight);
+            p.background(style.backgroundColor);
         }
-        p.background(style.backgroundColor);
         if (chartData) {
             drawChart();
         }
