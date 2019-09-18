@@ -20,7 +20,25 @@ class DataConverter {
         return vwap;
     }
 
-
+    convertSMAForCharting = (smaFromApi) => {
+        const latestDate = smaFromApi[0][0].slice(0,10);
+        console.log("dataConverter sma latestate", latestDate);
+        let sma = [];
+        for (let i = 0; smaFromApi[i][0].slice(0,10) === latestDate; i++) {
+            sma.push(parseFloat(smaFromApi[i][1].SMA))
+        }
+        console.log("dataConverter today's sma", sma)
+        sma = sma.reverse();
+        const domain = {min: Math.min(...sma), max: Math.max(...sma)};
+        for (let i = 0; i<sma.length; i++) {
+            sma[i] = {
+                "value": sma[i],
+                "percentageOfSpread": this.getPercentageOfSpread(sma[i], domain)
+            }
+        }
+        console.log("dataConverter sma conversion result", sma);
+        return sma;    
+    }
 
     convertDataForCharting = (dataFromApi) => {
         const latestDate = dataFromApi[0][0].slice(0,10);

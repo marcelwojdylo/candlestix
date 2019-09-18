@@ -7,8 +7,8 @@ import IntradayView from './IntradayView.js';
 export class Intraday extends Component {
 
     state = {
-        symbol: "MSFT",
-        interval: "5min",
+        symbol: "ROKU",
+        interval: "1min",
         outputsize: "full",
         data: [],
         vwap: [],
@@ -36,6 +36,14 @@ export class Intraday extends Component {
                 vwap: vwap,
             })
         })
+        alphaVantageService.getSMA(symbol, interval)
+        .then(response => {
+            const sma50 = dataConverter.convertSMAForCharting(response);
+            console.log("converted sma", sma50);
+            this.setState({
+                sma50: sma50,
+            })
+        })
     }
 
     handleChange = (event) => {  
@@ -61,6 +69,7 @@ export class Intraday extends Component {
             outputsize,
             intradayData,
             vwap,
+            sma50,
         } = this.state;
         const {
             displayMode,
@@ -78,7 +87,7 @@ export class Intraday extends Component {
                     toggleDisplayMode={toggleDisplayMode}
                 />
                 {
-                    intradayData && vwap && displayMode && <IntradayView intradayData={intradayData} vwap={vwap} displayMode={displayMode}/>
+                    intradayData && vwap && displayMode && <IntradayView intradayData={intradayData} vwap={vwap} sma50={sma50} displayMode={displayMode}/>
                 }   
             </div>
         )

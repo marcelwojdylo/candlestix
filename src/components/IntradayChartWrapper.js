@@ -37,6 +37,7 @@ export class IntradayChartWrapper extends Component {
         const {
             intradayData,
             vwap,
+            sma50,
             displayMode
         } = this.props;
         // console.log("ICW render", this.props.intradayData)
@@ -49,6 +50,7 @@ export class IntradayChartWrapper extends Component {
                             height={height} 
                             intradayData={intradayData} 
                             vwap={vwap} 
+                            sma50={sma50}
                             cols={{
                                 firstVisible:0, 
                                 lastVisible: intradayData.data.length,

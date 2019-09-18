@@ -10,6 +10,7 @@ class AlphaVantageService {
     }
 
     apiKey = 'RYWUIH6FGCEUHWV6';
+    apiKey2 = 'YIUDIQ54E7V7LOQE';
     
     getIntraday = async (symbol, interval, outputsize = 'full') => {
         const data = await this.api.get(
@@ -25,6 +26,15 @@ class AlphaVantageService {
             `?function=VWAP&symbol=${symbol}&interval=${interval}&apikey=${this.apiKey}`
         )
         .then(response => response.data['Technical Analysis: VWAP'])
+        .catch(error => console.log(error))
+        return Object.entries(data);
+    }
+
+    getSMA = async (symbol, interval, time_period="50", series_type="open") => {
+        const data = await this.api.get(
+            `?function=SMA&symbol=${symbol}&interval=${interval}&time_period=${time_period}&series_type=${series_type}&apikey=${this.apiKey2}`
+        )
+        .then(response => response.data['Technical Analysis: SMA'])
         .catch(error => console.log(error))
         return Object.entries(data);
     }

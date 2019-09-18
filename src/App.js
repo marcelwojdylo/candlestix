@@ -5,7 +5,7 @@ import Intraday from './components/Intraday.js'
 class App extends Component{
 
   state = {
-    displayMode: "dark",
+    displayMode: "light",
   }
 
   toggleDisplayMode = () => {
