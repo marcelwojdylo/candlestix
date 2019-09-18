@@ -156,8 +156,9 @@ export default function intradayPriceChart (p) {
     function drawTimeLabels (intradayToDraw) {
         for (let i = 0; i<intradayToDraw.length; i++) {
             const timestamp = intradayToDraw[i].timestamp;
+            const minutes = parseInt(timestamp.slice(14,16));
             const step = 15;
-            if (parseInt(timestamp.slice(14,16)) % step === 0) {
+            if (minutes % step === 0 || minutes === 0) {
                 const columnSpan = getColumnSpan(i, intradayToDraw.length);
                 const labelAnchor = {x: columnSpan.middle, y: priceChartDimensions.marginTop+priceChartDimensions.height+20}
                 const timeIndicator = {

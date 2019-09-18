@@ -13,8 +13,10 @@ export class Intraday extends Component {
         data: [],
         vwap: [],
         chartData: [],
+        dataReady: false,
         apiCallStatus: "idle",
-        dataReady: false
+        apiTimeout: 60,
+        apiCallsFailed: 0,
     }
 
     componentDidMount = () => {
@@ -29,6 +31,7 @@ export class Intraday extends Component {
         this.setState({
             apiCallStatus: "fetching intraday prices"
         })
+        clearTimeout(this.apiTimeoutTicker)
         alphaVantageService.getIntraday(symbol, interval, outputsize)
         .then(response => {
             intradayData = response;
@@ -62,10 +65,24 @@ export class Intraday extends Component {
             })
         })
         .catch(error => {
-            // alert("API call limit reached (1/min).")
-            this.setState({
-                apiCallStatus: "API call limit reached (1/min)."
-            })
+            this.apiTimeoutTicker = setInterval(() => {
+                if (this.state.apiCallsFailed < 3) {
+                    if (this.state.apiTimeout === 0) {
+                        this.fetchDataFromApi(symbol, interval, outputsize)
+                        this.setState({
+                            apiTimeout: 60,
+                            apiCallsFailed: this.state.apiCallsFailed+1
+                        })
+                    } else {
+                        this.setState({
+                            apiTimeout: this.state.apiTimeout-1,
+                            apiCallStatus: `API call limit reached (1/min). Retry in ${this.state.apiTimeout}s`
+                        })
+                    }
+                } else {
+                    this.setState({apiCallStatus: `API key is probably in use by more than one client. Please try again later.`})
+                }
+            }, 1000)
         })
     }
     
@@ -83,6 +100,8 @@ export class Intraday extends Component {
         })
     }
 
+    
+
     render() {
         const {
             symbol,
@@ -90,7 +109,8 @@ export class Intraday extends Component {
             outputsize,
             chartData,
             dataReady,
-            apiCallStatus
+            apiCallStatus,
+            apiTimeout
         } = this.state;
         const {
             displayMode,
