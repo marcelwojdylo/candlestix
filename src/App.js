@@ -17,7 +17,7 @@ class App extends Component{
   render () {
     const {displayMode} = this.state;
     displayMode === "light"?
-      document.body.style = 'background: rgb(220,220,220)':
+      document.body.style = 'background: rgb(199, 203, 209); color: black':
       document.body.style = 'background: black'
     return (
       <>

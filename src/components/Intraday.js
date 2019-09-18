@@ -3,7 +3,6 @@ import alphaVantageService from '../services/alpha-vantage-service.js';
 import dataConverter from '../helpers/data-converter.js'
 import IntradayQuery from './IntradayQuery.js';
 import IntradayView from './IntradayView.js';
-import { isDeclaration } from '@babel/types';
 
 export class Intraday extends Component {
 
@@ -113,6 +112,9 @@ export class Intraday extends Component {
                         ? <IntradayView chartData={chartData} displayMode={displayMode}/>
                         : <><h3>Fetching data from AlphaVantage API, please hold.</h3><p><b>Status: </b>{apiCallStatus}</p></>
                 }   
+                <div className="footer">
+                    <button onClick={toggleDisplayMode}>toggle display mode</button>
+                </div>
             </div>
         )
     }

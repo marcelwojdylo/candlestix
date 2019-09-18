@@ -2,12 +2,10 @@ import React, { Component } from 'react'
 
 export class IntradayQuery extends Component {
     render() {
-        const {symbol, interval, outputsize, handleChange, handleSubmit, toggleDisplayMode} = this.props;
+        const {symbol, interval, handleChange, handleSubmit} = this.props;
         return (
             <div className="intradayQuery">
-                <div>
-                    <button onClick={toggleDisplayMode}>toggle display mode</button>
-                </div>
+                <p>Use arrow buttons to zoom (up/down) and pan (left/right). Set ticker and interval --></p>
                 <div>
                     <form onSubmit={handleSubmit}>
                         <input name="symbol" value={symbol} onChange={handleChange}></input>

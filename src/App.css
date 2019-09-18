@@ -5,12 +5,35 @@ body {
   text-align: center;
 }
 
+button, button:focus {
+  background-color: rgb(255, 204, 0);
+  border: 2px solid black;
+  text-align: center;
+  font-size: 0.8em;
+  padding: 0.3rem 1rem 0.3rem 1rem;
+  outline: none;
+}
+
+button:active {
+  border: 2px dotted black;
+}
+
 .intraday {
   width: 95vw;
   /* display: flex; */
   /* flex-direction: column; */
   /* align-items: center; */
   margin: 0 auto 0 auto;
+}
+
+.footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.footer button {
+  border: none
 }
 
 .intradayQuery {
@@ -25,20 +48,17 @@ body {
   width: 100%
 }
 
+.intradayQuery p {
+  font-size: 0.7em;
+  color: black;
+}
+
 .intradayQuery form {
   width: 17rem;
   display: flex;
   justify-content: space-between;
 }
 
-.intradayQuery button, button:focus {
-  background-color: rgb(255, 204, 0);
-  border: 2px solid black;
-  text-align: center;
-  font-size: 0.8em;
-  padding: 0.3rem 1rem 0.3rem 1rem;
-  outline: none;
-}
 
 .intradayQuery input {
   background-color: rgb(255, 204, 0);
@@ -50,7 +70,8 @@ body {
 
 .intradayQuery input:focus {
   outline: none;
-  background-color: antiquewhite
+  background-color: antiquewhite;
+  border: 2px dotted black;
 }
 
 .intradayQuery select, select:focus {

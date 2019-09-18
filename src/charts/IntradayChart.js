@@ -471,14 +471,14 @@ export default function intradayPriceChart (p) {
     
     function keyPressed () {
         
-        if (p.keyCode === p.UP_ARROW) {
+        if (p.keyCode === p.DOWN_ARROW) {
             if (columnsVisible.firstVisible!==0) {
                 columnsVisible.firstVisible--;
             } else if (columnsVisible.lastVisible!==intradayData.length) {
                 columnsVisible.lastVisible++;
             }
             // console.log("keyPressed: UP_ARROW pressed, colsVisible:", columnsVisible.firstVisible, columnsVisible.lastVisible)
-        } else if (p.keyCode === p.DOWN_ARROW && columnsVisible.firstVisible!==columnsVisible.lastVisible) {
+        } else if (p.keyCode === p.UP_ARROW && columnsVisible.firstVisible!==columnsVisible.lastVisible) {
             columnsVisible.firstVisible++;
             // console.log("keyPressed: DOWN_ARROW pressed, colsVisible:", columnsVisible.firstVisible, columnsVisible.lastVisible)
         } else if (p.keyCode === p.LEFT_ARROW && columnsVisible.firstVisible!==0) {
