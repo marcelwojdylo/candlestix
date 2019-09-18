@@ -1,101 +1,107 @@
 class DataConverter {
 
-    convertVWAPForCharting = (vwapFromApi) => {
-        const latestDate = vwapFromApi[0][0].slice(0,10);
-        // console.log("vwap latestate", latestDate);
-        let vwap = [];
-        for (let i = 0; vwapFromApi[i][0].slice(0,10) === latestDate; i++) {
-            vwap.push(parseFloat(vwapFromApi[i][1].VWAP))
-        }
-        // console.log("today's vwap", vwap)
-        vwap = vwap.reverse();
-        const domain = {min: Math.min(...vwap), max: Math.max(...vwap)};
-        for (let i = 0; i<vwap.length; i++) {
-            vwap[i] = {
-                "value": vwap[i],
-                "percentageOfSpread": this.getPercentageOfSpread(vwap[i], domain)
+    convertForCharting (intradayData, vwapData, sma50Data) {
+
+        intradayData = this.truncateToTodaysData(intradayData);
+        vwapData = this.truncateToTodaysData(vwapData);
+        sma50Data = this.truncateToTodaysData(sma50Data);
+
+        intradayData = this.parseIntraday(intradayData);
+        vwapData = this.parseVWAP(vwapData);
+        sma50Data = this.parseSMA(sma50Data);
+
+        intradayData = intradayData.reverse();
+        vwapData = vwapData.reverse();
+        sma50Data = sma50Data.reverse();
+
+        const priceDomain = this.getPriceDomain(intradayData);
+        const volumeDomain = this.getVolumeDomain(intradayData);
+
+        intradayData = this.computeIntraday(intradayData, priceDomain, volumeDomain);
+        vwapData = this.computeVWAP(vwapData, priceDomain);
+        sma50Data = this.computeSMA(sma50Data, priceDomain);
+
+        const priceThresholds = this.getPriceThresholds(priceDomain);
+        
+        // console.log(
+        //     "DataConverter.convertForCharting:",
+        //     "intradayData",
+        //     intradayData,
+        //     "vwapData",
+        //     vwapData,
+        //     "sma50Data",
+        //     sma50Data
+        // )
+
+        return {
+            metadata: {
+                priceDomain: priceDomain,
+                volumeDomain: volumeDomain,
+                priceThresholds: priceThresholds,
+                dataLength: intradayData.length,
+            },
+            data: {
+                intradayData: intradayData,
+                vwapData: vwapData,
+                sma50Data: sma50Data,
             }
         }
-        // console.log("vwap conversion result", vwap);
-        return vwap;
     }
 
-    convertSMAForCharting = (smaFromApi) => {
-        const latestDate = smaFromApi[0][0].slice(0,10);
-        console.log("dataConverter sma latestate", latestDate);
-        let sma = [];
-        for (let i = 0; smaFromApi[i][0].slice(0,10) === latestDate; i++) {
-            sma.push(parseFloat(smaFromApi[i][1].SMA))
+
+    truncateToTodaysData = (data) => {
+        const todaysData = [];
+        const latestDate = data[0][0].slice(0,10);
+        for (let i = 0; data[i][0].slice(0,10) === latestDate; i++) {
+            todaysData.push(data[i])
         }
-        console.log("dataConverter today's sma", sma)
-        sma = sma.reverse();
-        const domain = {min: Math.min(...sma), max: Math.max(...sma)};
-        for (let i = 0; i<sma.length; i++) {
-            sma[i] = {
-                "value": sma[i],
-                "percentageOfSpread": this.getPercentageOfSpread(sma[i], domain)
-            }
-        }
-        console.log("dataConverter sma conversion result", sma);
-        return sma;    
+        return todaysData;
     }
 
-    convertDataForCharting = (dataFromApi) => {
-        const latestDate = dataFromApi[0][0].slice(0,10);
-        let data = [];
-        for (let i = 0; dataFromApi[i][0].slice(0,10) === latestDate; i++) {
-            data.push(
+    parseIntraday = (data) => {
+        let parsedData = []
+        for (let i = 0; i<data.length; i++) {
+            parsedData.push(
                 [
-                    parseFloat(dataFromApi[i][1]["1. open"]),
-                    parseFloat(dataFromApi[i][1]["4. close"]),
-                    parseFloat(dataFromApi[i][1]["2. high"]),
-                    parseFloat(dataFromApi[i][1]["3. low"]),
-                    parseFloat(dataFromApi[i][1]["5. volume"]),
-                    dataFromApi[i][0]
+                    parseFloat(data[i][1]["1. open"]),
+                    parseFloat(data[i][1]["4. close"]),
+                    parseFloat(data[i][1]["2. high"]),
+                    parseFloat(data[i][1]["3. low"]),
+                    parseFloat(data[i][1]["5. volume"]),
+                    data[i][0]
                 ]
             )
         }
-        data = data.reverse();
-        const priceDomain = this.getPriceDomain(data);
-        const volumeDomain = this.getVolumeDomain(data);
+        return parsedData;
+    }
 
+    parseVWAP = (data) => {
+        let parsedData = [];
         for (let i = 0; i<data.length; i++) {
-            data[i] = {
-                "open": {
-                    "value": data[i][0],
-                    "percentageOfSpread": this.getPercentageOfSpread(data[i][0], priceDomain)
-                },
-                "close": {
-                    "value": data[i][1],
-                    "percentageOfSpread": this.getPercentageOfSpread(data[i][1], priceDomain)
-                },
-                "high": {
-                    "value": data[i][2],
-                    "percentageOfSpread": this.getPercentageOfSpread(data[i][2], priceDomain)
-                },
-                "low": {
-                    "value": data[i][3],
-                    "percentageOfSpread": this.getPercentageOfSpread(data[i][3], priceDomain)
-                },
-                "volume": {
-                    "value": data[i][4],
-                    "percentageOfSpread": this.getPercentageOfSpread(data[i][4], volumeDomain)
-                },
-                "timestamp": data[i][5]
-            }
+            parsedData.push(parseFloat(data[i][1].VWAP))
         }
-        const chartData = {
-            "metadata": {
-                "priceDomain": priceDomain,
-                "volumeDomain": volumeDomain,
-                "priceThresholds": this.getPriceThresholds(priceDomain),
-                "dataLength": data.length
-                // "volumeThresholds": this.getVolumeThresholds(volumeDomain)
-            },
-            "data": data
+        return parsedData;
+    }
+
+    parseSMA = (data) => {
+        let parsedData = [];
+        for (let i = 0; i<data.length; i++) {
+            parsedData.push(parseFloat(data[i][1].SMA))
         }
-        // console.log("DataConverter.convertDataForCharting data", chartData)
-        return chartData;
+        return parsedData;
+    }
+
+    getPriceDomain = (parsedData) => {
+        let allValues = [];
+        for (let element of parsedData) {
+            allValues.push(
+                element[0],
+                element[1],
+                element[2],
+                element[3]
+            )
+        }
+        return {min: Math.min(...allValues), max: Math.max(...allValues)}
     }
 
     getVolumeDomain = (data) => {
@@ -106,18 +112,57 @@ class DataConverter {
         return {min: Math.min(...volumes), max: Math.max(...volumes)}
     }
 
-    getPriceDomain = (candlestickData) => {
-        let allValues = [];
-        for (let element of candlestickData) {
-            allValues.push(
-                element[0],
-                element[1],
-                element[2],
-                element[3]
-            )
+    computeIntraday = (intradayData, priceDomain, volumeDomain) => {
+        for (let i = 0; i<intradayData.length; i++) {
+            intradayData[i] = {
+                "open": {
+                    "value": intradayData[i][0],
+                    "percentageOfSpread": this.getPercentageOfSpread(intradayData[i][0], priceDomain)
+                },
+                "close": {
+                    "value": intradayData[i][1],
+                    "percentageOfSpread": this.getPercentageOfSpread(intradayData[i][1], priceDomain)
+                },
+                "high": {
+                    "value": intradayData[i][2],
+                    "percentageOfSpread": this.getPercentageOfSpread(intradayData[i][2], priceDomain)
+                },
+                "low": {
+                    "value": intradayData[i][3],
+                    "percentageOfSpread": this.getPercentageOfSpread(intradayData[i][3], priceDomain)
+                },
+                "volume": {
+                    "value": intradayData[i][4],
+                    "percentageOfSpread": this.getPercentageOfSpread(intradayData[i][4], volumeDomain)
+                },
+                "timestamp": intradayData[i][5]
+            }
         }
-        return {min: Math.min(...allValues), max: Math.max(...allValues)}
+        return intradayData;
     }
+
+    computeVWAP = (vwapData, priceDomain) => {
+        for (let i = 0; i<vwapData.length; i++) {
+            vwapData[i] = {
+                "value": vwapData[i],
+                "percentageOfSpread": this.getPercentageOfSpread(vwapData[i], priceDomain)
+            }
+        }
+        // console.log("vwap conversion result", vwap);
+        return vwapData;
+    }
+
+    computeSMA = (smaData, priceDomain) => {
+        for (let i = 0; i<smaData.length; i++) {
+            smaData[i] = {
+                "value": smaData[i],
+                "percentageOfSpread": this.getPercentageOfSpread(smaData[i], priceDomain)
+            }
+        }
+        // console.log("dataConverter smaData conversion result", smaData);
+        return smaData;    
+    }
+
 
     getPercentageOfSpread = (point, domain) => {
         let spread = this.getSpread(domain);

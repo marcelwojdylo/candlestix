@@ -12,6 +12,7 @@ export class Intraday extends Component {
         outputsize: "full",
         data: [],
         vwap: [],
+        chartData: [],
     }
 
     componentDidMount = () => {
@@ -19,33 +20,29 @@ export class Intraday extends Component {
         this.fetchDataFromApi(symbol, interval, outputsize)
     }
 
+    
+
     fetchDataFromApi = (symbol, interval, outputsize) => {
+        let intradayData, vwapData, sma50Data, convertedData;
         alphaVantageService.getIntraday(symbol, interval, outputsize)
         .then(response => {
-            const intradayData = dataConverter.convertDataForCharting(response);
-            // console.log("converted data", intradayData)
-            this.setState({
-                intradayData: intradayData,
-            })
+            intradayData = response;
+            return alphaVantageService.getVWAP(symbol, interval);
         })
-        alphaVantageService.getVWAP(symbol, interval)
         .then(response => {
-            const vwap = dataConverter.convertVWAPForCharting(response);
-            // console.log("converted vwap", vwap)
-            this.setState({
-                vwap: vwap,
-            })
+            vwapData = response;
+            return alphaVantageService.getSMA(symbol, interval, "50");
         })
-        alphaVantageService.getSMA(symbol, interval)
         .then(response => {
-            const sma50 = dataConverter.convertSMAForCharting(response);
-            console.log("converted sma", sma50);
+            sma50Data = response;
+            convertedData = dataConverter.convertForCharting(intradayData, vwapData, sma50Data);
             this.setState({
-                sma50: sma50,
+                chartData: convertedData
             })
         })
+        // console.log("Intraday.fetchDataFromApi data after conversion for charting", convertedData);
     }
-
+    
     handleChange = (event) => {  
         const {name, value} = event.target;
         this.setState({[name]: value});
@@ -67,15 +64,13 @@ export class Intraday extends Component {
             symbol,
             interval,
             outputsize,
-            intradayData,
-            vwap,
-            sma50,
+            chartData
         } = this.state;
         const {
             displayMode,
             toggleDisplayMode
         } = this.props;
-        // console.log("Intraday.js state.intradayData", intradayData)
+        // console.log("Intraday.render: state.chartData", chartData)
         return (
             <div className="intraday">
                 <IntradayQuery 
@@ -87,7 +82,7 @@ export class Intraday extends Component {
                     toggleDisplayMode={toggleDisplayMode}
                 />
                 {
-                    intradayData && vwap && displayMode && <IntradayView intradayData={intradayData} vwap={vwap} sma50={sma50} displayMode={displayMode}/>
+                    chartData.data && displayMode && <IntradayView chartData={chartData} displayMode={displayMode}/>
                 }   
             </div>
         )

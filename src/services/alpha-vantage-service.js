@@ -30,7 +30,7 @@ class AlphaVantageService {
         return Object.entries(data);
     }
 
-    getSMA = async (symbol, interval, time_period="50", series_type="open") => {
+    getSMA = async (symbol, interval, time_period="50", series_type="close") => {
         const data = await this.api.get(
             `?function=SMA&symbol=${symbol}&interval=${interval}&time_period=${time_period}&series_type=${series_type}&apikey=${this.apiKey2}`
         )

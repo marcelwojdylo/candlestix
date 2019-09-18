@@ -32,28 +32,24 @@ export class IntradayChartWrapper extends Component {
     render() {
         const {
             width,
-            height
+            height,
         } = this.state;
         const {
-            intradayData,
-            vwap,
-            sma50,
-            displayMode
+            chartData,
+            displayMode,
         } = this.props;
         // console.log("ICW render", this.props.intradayData)
         return (
             <div className="intradayChartWrapper" ref={r => this.wrapperDiv = r}>
                 {
-                    width !== 0 && intradayData && vwap ? <P5Wrapper 
+                    width !== 0 && chartData? <P5Wrapper 
                             sketch={IntradayChart} 
                             width={width} 
-                            height={height} 
-                            intradayData={intradayData} 
-                            vwap={vwap} 
-                            sma50={sma50}
+                            height={height}
+                            chartData={chartData}
                             cols={{
                                 firstVisible:0, 
-                                lastVisible: intradayData.data.length,
+                                lastVisible: chartData.data.intradayData.length,
                             }} 
                             mode={displayMode}/>
                         : <h3>Resize pending</h3>

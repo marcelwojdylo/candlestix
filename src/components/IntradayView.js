@@ -25,9 +25,7 @@ function IntradayView (props) {
     }
 
     const {
-        intradayData,
-        vwap,
-        sma50,
+        chartData,
         displayMode
     } = props;
 
@@ -36,9 +34,7 @@ function IntradayView (props) {
             {/* {console.log("intradayView: props.intradayData", intradayData)} */}
             <IntradayChartWrapper 
                 key={chartKey} 
-                intradayData={intradayData} 
-                vwap={vwap} 
-                sma50={sma50}
+                chartData={chartData}
                 displayMode={displayMode}/>
         </div>
     )
