@@ -23,7 +23,7 @@ export class Intraday extends Component {
     
 
     fetchDataFromApi = (symbol, interval, outputsize) => {
-        let intradayData, vwapData, sma50Data, convertedData;
+        let intradayData, vwapData, sma50Data, sma200Data, convertedData;
         alphaVantageService.getIntraday(symbol, interval, outputsize)
         .then(response => {
             intradayData = response;
@@ -35,12 +35,16 @@ export class Intraday extends Component {
         })
         .then(response => {
             sma50Data = response;
-            convertedData = dataConverter.convertForCharting(intradayData, vwapData, sma50Data);
+            return alphaVantageService.getSMA(symbol, interval, "200")
+        })
+        .then(response => {
+            sma200Data = response;
+            convertedData = dataConverter.convertForCharting(intradayData, vwapData, sma50Data, sma200Data);
+            // console.log("Intraday.fetchDataFromApi data after conversion for charting", convertedData);
             this.setState({
                 chartData: convertedData
             })
         })
-        // console.log("Intraday.fetchDataFromApi data after conversion for charting", convertedData);
     }
     
     handleChange = (event) => {  
@@ -52,11 +56,6 @@ export class Intraday extends Component {
         event.preventDefault();
         const {symbol, interval, outputsize} = this.state;
         this.fetchDataFromApi(symbol, interval, outputsize)
-    }
-
-    toggleDisplayMode = (event) => {
-        event.preventDefault();
-        this.setState({displayMode:this.state.displayMode==="light"?"dark":"light"})
     }
 
     render() {
@@ -82,7 +81,7 @@ export class Intraday extends Component {
                     toggleDisplayMode={toggleDisplayMode}
                 />
                 {
-                    chartData.data && displayMode && <IntradayView chartData={chartData} displayMode={displayMode}/>
+                    chartData.intradayData && displayMode && <IntradayView chartData={chartData} displayMode={displayMode}/>
                 }   
             </div>
         )

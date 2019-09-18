@@ -5,7 +5,7 @@ import Intraday from './components/Intraday.js'
 class App extends Component{
 
   state = {
-    displayMode: "light",
+    displayMode: "dark",
   }
 
   toggleDisplayMode = () => {
@@ -16,13 +16,11 @@ class App extends Component{
   
   render () {
     const {displayMode} = this.state;
+    displayMode === "light"?
+      document.body.style = 'background: rgb(220,220,220)':
+      document.body.style = 'background: black'
     return (
       <>
-        {
-          displayMode === "light"?
-            document.body.style = 'background: white':
-            document.body.style = 'background: black'
-        }
         <Intraday toggleDisplayMode={this.toggleDisplayMode} displayMode={displayMode}/>
       </>
     );

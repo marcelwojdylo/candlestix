@@ -1,27 +1,22 @@
 class DataConverter {
 
-    convertForCharting (intradayData, vwapData, sma50Data) {
+    convertForCharting (intradayData, vwapData, sma50Data, sma200Data) {
 
         intradayData = this.truncateToTodaysData(intradayData);
         vwapData = this.truncateToTodaysData(vwapData);
         sma50Data = this.truncateToTodaysData(sma50Data);
+        sma200Data = this.truncateToTodaysData(sma200Data);
+        
 
         intradayData = this.parseIntraday(intradayData);
         vwapData = this.parseVWAP(vwapData);
         sma50Data = this.parseSMA(sma50Data);
+        sma200Data = this.parseSMA(sma200Data);
 
         intradayData = intradayData.reverse();
         vwapData = vwapData.reverse();
         sma50Data = sma50Data.reverse();
-
-        const priceDomain = this.getPriceDomain(intradayData);
-        const volumeDomain = this.getVolumeDomain(intradayData);
-
-        intradayData = this.computeIntraday(intradayData, priceDomain, volumeDomain);
-        vwapData = this.computeVWAP(vwapData, priceDomain);
-        sma50Data = this.computeSMA(sma50Data, priceDomain);
-
-        const priceThresholds = this.getPriceThresholds(priceDomain);
+        sma200Data = sma200Data.reverse();
         
         // console.log(
         //     "DataConverter.convertForCharting:",
@@ -34,17 +29,10 @@ class DataConverter {
         // )
 
         return {
-            metadata: {
-                priceDomain: priceDomain,
-                volumeDomain: volumeDomain,
-                priceThresholds: priceThresholds,
-                dataLength: intradayData.length,
-            },
-            data: {
-                intradayData: intradayData,
-                vwapData: vwapData,
-                sma50Data: sma50Data,
-            }
+            intradayData: intradayData,
+            vwapData: vwapData,
+            sma50Data: sma50Data,
+            sma200Data: sma200Data,
         }
     }
 
@@ -62,14 +50,14 @@ class DataConverter {
         let parsedData = []
         for (let i = 0; i<data.length; i++) {
             parsedData.push(
-                [
-                    parseFloat(data[i][1]["1. open"]),
-                    parseFloat(data[i][1]["4. close"]),
-                    parseFloat(data[i][1]["2. high"]),
-                    parseFloat(data[i][1]["3. low"]),
-                    parseFloat(data[i][1]["5. volume"]),
-                    data[i][0]
-                ]
+                {
+                    open: parseFloat(data[i][1]["1. open"]),
+                    close: parseFloat(data[i][1]["4. close"]),
+                    high: parseFloat(data[i][1]["2. high"]),
+                    low: parseFloat(data[i][1]["3. low"]),
+                    volume: parseFloat(data[i][1]["5. volume"]),
+                    timestamp: data[i][0]
+                }
             )
         }
         return parsedData;

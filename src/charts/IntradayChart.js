@@ -5,7 +5,7 @@ export default function intradayPriceChart (p) {
     let intradayData;
     let vwapData;
     let sma50Data;
-    let metadata;
+    let sma200Data;
     let priceChartDimensions;
     let volumeChartDimensions;
     let robotoThin;
@@ -25,10 +25,12 @@ export default function intradayPriceChart (p) {
         red: [201, 60, 0],
         candlestickStrokeWeight: 1.4,
         volumeBarStrokeWeight: 1.4,
-        vwapStrokeColor: [240, 7, 92],
-        vwapStrokeWeight: 2,
-        sma50StrokeColor: [235, 168, 52],
-        sma50StrokeWeight: 2,
+        vwapStrokeColor: [255, 204, 0],
+        vwapStrokeWeight: 1.2,
+        sma50StrokeColor: [137, 178, 240],
+        sma50StrokeWeight: 1.2,
+        sma200StrokeColor: [0, 83, 201],
+        sma200StrokeWeight: 1.2
     }
     let styleLight = {
         backgroundColor: [240],
@@ -37,7 +39,7 @@ export default function intradayPriceChart (p) {
         verticalIndicatorColor: [154, 192, 217, 70],
         verticalindicatorStrokeWeight: 0.5,
         horizontalIndicatorColor: [130, 170, 200],
-        horizontalindicatorStrokeWeight: 0.8,
+        horizontalindicatorStrokeWeight: 0.5,
         candlestickStrokeColor: [60],
         candlestickStrokeWeight: 1,
         volumeBarStrokeColor: [60],
@@ -45,19 +47,20 @@ export default function intradayPriceChart (p) {
         green: [255],
         red: [209, 19, 57],
         vwapStrokeColor: [255, 204, 0],
-        vwapStrokeWeight: 1.7,
-        sma50StrokeColor: [0, 63, 181],
-        sma50StrokeWeight: 1.5,
+        vwapStrokeWeight: 1.5,
+        sma50StrokeColor: [137, 178, 240],
+        sma50StrokeWeight: 1.3,
+        sma200StrokeColor: [0, 83, 201],
+        sma200StrokeWeight: 1.3
     }    
     
     
     function setPriceChartDimensions () {
         return {
             marginLeft: canvasWidth*0.01,
-            marginTop: canvasHeight*0.05,
-            marginBottom: canvasHeight*0.05,
+            marginTop: 0,
             width: canvasWidth*0.95,
-            height: canvasHeight*0.6,
+            height: canvasHeight*0.7,
         }
     }
     
@@ -65,19 +68,19 @@ export default function intradayPriceChart (p) {
         return {
             marginLeft: canvasWidth*0.01,
             marginTop: priceChartDimensions.marginTop+priceChartDimensions.height+canvasHeight*0.05,
-            marginBottom: canvasHeight*0.05,
             width: canvasWidth*0.95,
             height: canvasHeight*0.3,
         }
     }
     
-    function drawPriceChart(intradayToDraw, vwapToDraw, sma50ToDraw) {
+    function drawPriceChart(intradayToDraw, vwapToDraw, sma50ToDraw, sma200ToDraw, priceDomain) {
         drawPriceChartBackground();
-        drawVWAPPlot(vwapToDraw);
-        draw9SMAPlot(sma50ToDraw);
+        draw50SMAPlot(sma50ToDraw, priceDomain);
+        draw200SMAPlot(sma200ToDraw, priceDomain);
+        drawVWAPPlot(vwapToDraw, priceDomain);
         drawTimeLabels(intradayToDraw);
-        drawPriceLabels(intradayToDraw);
-        drawCandlesticks(intradayToDraw);
+        drawPriceThresholds(priceDomain);
+        drawCandlesticks(intradayToDraw, priceDomain);
     }
     
     function drawPriceChartBackground () {
@@ -91,36 +94,68 @@ export default function intradayPriceChart (p) {
             )
     }
     
-    function drawVWAPPlot (vwapToDraw) {
+    function drawVWAPPlot (vwapToDraw, priceDomain) {
         const {length} = vwapToDraw;
         for (let i = 0; i < length-1; i++) {
-            const thisColumnSpan = getColumnSpan(i, length);
-            const nextColumnSpan = getColumnSpan(i+1, length);
-            p.stroke(...style.vwapStrokeColor);
-            p.strokeWeight(style.vwapStrokeWeight);
-            p.line(
-                thisColumnSpan.middle, priceChartDimensions.marginTop+priceChartDimensions.height-vwapToDraw[i].percentageOfSpread*priceChartDimensions.height,
-                nextColumnSpan.middle, priceChartDimensions.marginTop+priceChartDimensions.height-vwapToDraw[i+1].percentageOfSpread*priceChartDimensions.height
-            )
+            const percentageOfSpread = (vwapToDraw[i]-priceDomain.min)/(priceDomain.max-priceDomain.min)
+            if (percentageOfSpread < 1 && percentageOfSpread > 0) {
+                const thisColumnSpan = getColumnSpan(i, length);
+                const nextColumnSpan = getColumnSpan(i+1, length);
+                const thisPOS = (vwapToDraw[i]-priceDomain.min)/(priceDomain.max-priceDomain.min)
+                const nextPOS = (vwapToDraw[i+1]-priceDomain.min)/(priceDomain.max-priceDomain.min)
+                p.stroke(...style.vwapStrokeColor);
+                p.strokeWeight(style.vwapStrokeWeight);
+                p.line(
+                    thisColumnSpan.middle, priceChartDimensions.marginTop+priceChartDimensions.height-thisPOS*priceChartDimensions.height,
+                    nextColumnSpan.middle, priceChartDimensions.marginTop+priceChartDimensions.height-nextPOS*priceChartDimensions.height
+                )
+            }
         }
     }
-    function draw9SMAPlot (sma50ToDraw) {
+    function draw50SMAPlot (sma50ToDraw, priceDomain) {
         const {length} = sma50ToDraw;
         for (let i = 0; i < length-1; i++) {
-            const thisColumnSpan = getColumnSpan(i, length);
-            const nextColumnSpan = getColumnSpan(i+1, length);
-            p.stroke(...style.sma50StrokeColor);
-            p.strokeWeight(style.sma50StrokeWeight);
-            p.line(
-                thisColumnSpan.middle, priceChartDimensions.marginTop+priceChartDimensions.height-sma50ToDraw[i].percentageOfSpread*priceChartDimensions.height,
-                nextColumnSpan.middle, priceChartDimensions.marginTop+priceChartDimensions.height-sma50ToDraw[i+1].percentageOfSpread*priceChartDimensions.height
-            )
+            const thisPOS = (sma50ToDraw[i]-priceDomain.min)/(priceDomain.max-priceDomain.min)
+            const nextPOS = (sma50ToDraw[i+1]-priceDomain.min)/(priceDomain.max-priceDomain.min)
+            if (
+                thisPOS > 0 && thisPOS < 1 &&
+                nextPOS > 0 && nextPOS < 1 
+            ) {
+                const thisColumnSpan = getColumnSpan(i, length);
+                const nextColumnSpan = getColumnSpan(i+1, length);
+                p.stroke(...style.sma50StrokeColor);
+                p.strokeWeight(style.sma50StrokeWeight);
+                p.line(
+                    thisColumnSpan.middle, priceChartDimensions.marginTop+priceChartDimensions.height-thisPOS*priceChartDimensions.height,
+                    nextColumnSpan.middle, priceChartDimensions.marginTop+priceChartDimensions.height-nextPOS*priceChartDimensions.height
+                )
+            }
         }
     }
-        
+    function draw200SMAPlot (sma200ToDraw, priceDomain) {
+        const {length} = sma200ToDraw;
+        for (let i = 0; i < length-1; i++) {
+            const thisPOS = (sma200ToDraw[i]-priceDomain.min)/(priceDomain.max-priceDomain.min)
+            const nextPOS = (sma200ToDraw[i+1]-priceDomain.min)/(priceDomain.max-priceDomain.min)
+            if (
+                thisPOS > 0 && thisPOS < 1 &&
+                nextPOS > 0 && nextPOS < 1 
+            ) {
+                const thisColumnSpan = getColumnSpan(i, length);
+                const nextColumnSpan = getColumnSpan(i+1, length);
+                p.stroke(...style.sma200StrokeColor);
+                p.strokeWeight(style.sma200StrokeWeight);
+                p.line(
+                    thisColumnSpan.middle, priceChartDimensions.marginTop+priceChartDimensions.height-thisPOS*priceChartDimensions.height,
+                    nextColumnSpan.middle, priceChartDimensions.marginTop+priceChartDimensions.height-nextPOS*priceChartDimensions.height
+                )
+            }
+        }
+    }
+    
     function drawTimeLabels (intradayToDraw) {
         for (let i = 0; i<intradayToDraw.length; i++) {
-            const timestamp = intradayToDraw[i]["timestamp"];
+            const timestamp = intradayToDraw[i].timestamp;
             const step = 15;
             if (parseInt(timestamp.slice(14,16)) % step === 0) {
                 const columnSpan = getColumnSpan(i, intradayToDraw.length);
@@ -141,34 +176,47 @@ export default function intradayPriceChart (p) {
         }
     }
     
-    function drawPriceLabels() {
-        for (let threshold of metadata.priceThresholds) {
+    function drawPriceThresholds(priceDomain) {
+        const priceThresholds =  getPriceThresholds(priceDomain);
+        for (let threshold of priceThresholds) {
+            const percentageOfSpread = (threshold-priceDomain.min)/(priceDomain.max-priceDomain.min)
             const priceLabelAnchor = {
                 x: priceChartDimensions.marginLeft+priceChartDimensions.width+5,
-                y: priceChartDimensions.marginTop+priceChartDimensions.height-threshold["percentageOfSpread"]*priceChartDimensions.height
+                y: priceChartDimensions.marginTop+priceChartDimensions.height-percentageOfSpread*priceChartDimensions.height
             }
             const priceLabelIndicator = {
                 xLeft: priceChartDimensions.marginLeft,
                 xRight: priceChartDimensions.marginLeft+priceChartDimensions.width,
-                y: priceChartDimensions.marginTop+priceChartDimensions.height-threshold["percentageOfSpread"]*priceChartDimensions.height
+                y: priceChartDimensions.marginTop+priceChartDimensions.height-percentageOfSpread*priceChartDimensions.height
             }
             p.noStroke();
             p.fill(...style.labelTextColor);
             p.textAlign(p.LEFT);
-            p.text(threshold.value, priceLabelAnchor.x, priceLabelAnchor.y);
+            p.text("$"+threshold.toString(), priceLabelAnchor.x, priceLabelAnchor.y);
 
             p.stroke(...style.horizontalIndicatorColor);
             p.strokeWeight(style.horizontalindicatorStrokeWeight)
             p.line(priceLabelIndicator.xLeft, priceLabelIndicator.y, priceLabelIndicator.xRight, priceLabelIndicator.y)
         }
     }
+
+    function getPriceThresholds (priceDomain) {
+        let lowestRoundPrice = Math.ceil(priceDomain.min);
+        let highestRoundPrice = Math.floor(priceDomain.max);
+        let thresholds = [];
+        let step = highestRoundPrice-lowestRoundPrice<3 ? 0.5 : 1
+        for (let i = lowestRoundPrice; i<=highestRoundPrice; i+=step) {
+            thresholds.push(i)
+        }
+        return thresholds;
+    }
     
-    function drawCandlesticks (intradayToDraw) {
+    function drawCandlesticks (intradayToDraw, priceDomain) {
         for (let i = 0; i<intradayToDraw.length; i++) {
             if (displayMode === "light") {
                 p.stroke(...style.candlestickStrokeColor)
                 p.strokeWeight(style.candlestickStrokeWeight)
-                if (intradayToDraw[i]["close"]["value"]>intradayToDraw[i]["open"]["value"]) {
+                if (intradayToDraw[i].close>intradayToDraw[i].open) {
                     p.fill(...style.green)
                 } else {
                     p.fill(...style.red)
@@ -176,36 +224,41 @@ export default function intradayPriceChart (p) {
             } else {
                 p.fill(...style.chartBackgroundColor)
                 p.strokeWeight(style.candlestickStrokeWeight)
-                if (intradayToDraw[i]["close"]["value"]>intradayToDraw[i]["open"]["value"]) {
+                if (intradayToDraw[i].close>intradayToDraw[i].open) {
                     p.stroke(...style.green)
                 } else {
                     p.stroke(...style.red)
                 }
             }
-
+            
             const columnSpan = getColumnSpan(i, intradayToDraw.length);
             //high-low line
+            const highPOS = (intradayToDraw[i].high-priceDomain.min)/(priceDomain.max-priceDomain.min)
+            const lowPOS = (intradayToDraw[i].low-priceDomain.min)/(priceDomain.max-priceDomain.min)
             const high = {
                 x: columnSpan.middle,
-                y: priceChartDimensions.marginTop+priceChartDimensions.height-intradayToDraw[i]["high"]["percentageOfSpread"]*priceChartDimensions.height
+                y: priceChartDimensions.marginTop+priceChartDimensions.height-highPOS*priceChartDimensions.height
             };
             const low = {
                 x: columnSpan.middle,
-                y: priceChartDimensions.marginTop+priceChartDimensions.height-intradayToDraw[i]["low"]["percentageOfSpread"]*priceChartDimensions.height
+                y: priceChartDimensions.marginTop+priceChartDimensions.height-lowPOS*priceChartDimensions.height
             }
             p.line(high.x, high.y, low.x, low.y)
             
             //open-close box
+            const openPOS = (intradayToDraw[i].open-priceDomain.min)/(priceDomain.max-priceDomain.min)
+            const closePOS = (intradayToDraw[i].close-priceDomain.min)/(priceDomain.max-priceDomain.min)
             const boxWidth = columnSpan.width * 0.6;
-            const boxHeight = intradayToDraw[i]["open"]["percentageOfSpread"]*priceChartDimensions.height - intradayToDraw[i]["close"]["percentageOfSpread"]*priceChartDimensions.height;
-            const boxAnchor = {x: columnSpan.middle-boxWidth/2, y: priceChartDimensions.marginTop+priceChartDimensions.height-intradayToDraw[i]["open"]["percentageOfSpread"]*priceChartDimensions.height}
+            const boxHeight = openPOS*priceChartDimensions.height - closePOS*priceChartDimensions.height;
+            const boxAnchor = {x: columnSpan.middle-boxWidth/2, y: priceChartDimensions.marginTop+priceChartDimensions.height-openPOS*priceChartDimensions.height}
             p.rect(boxAnchor.x, boxAnchor.y, boxWidth, boxHeight)
         }
     }
-    function drawVolumeChart (intradayToDraw) {
+    function drawVolumeChart (intradayToDraw, volumeDomain) {
         drawVolumeChartBackground();
+        drawVolumeThresholds(volumeDomain);
         drawVolumeChartTimeIndicators(intradayToDraw);
-        drawVolumeBars(intradayToDraw);
+        drawVolumeBars(intradayToDraw, volumeDomain);
     }
 
     function drawVolumeChartBackground () {
@@ -224,7 +277,6 @@ export default function intradayPriceChart (p) {
             const timestamp = intradayToDraw[i]["timestamp"];
             if (parseInt(timestamp.slice(14,16)) % 5 === 0) {
                 const columnSpan = getColumnSpan(i, intradayToDraw.length);
-                const labelAnchor = {x: columnSpan.middle, y: volumeChartDimensions.marginTop+volumeChartDimensions.height+20}
                 const timeIndicator = {
                     x: columnSpan.middle,
                     topY: volumeChartDimensions.marginTop,
@@ -237,16 +289,57 @@ export default function intradayPriceChart (p) {
         }
     }
 
+    function drawVolumeThresholds(volumeDomain) {
+        const volumeThresholds =  getVolumeThresholds(volumeDomain);
+        for (let threshold of volumeThresholds) {
+            const percentageOfSpread = (threshold-volumeDomain.min)/(volumeDomain.max-volumeDomain.min)
+            const volumeLabelAnchor = {
+                x: volumeChartDimensions.marginLeft+volumeChartDimensions.width+5,
+                y: volumeChartDimensions.marginTop+volumeChartDimensions.height-percentageOfSpread*volumeChartDimensions.height
+            }
+            const thousands = threshold/1000;
+            const volumeLabelText = thousands.toString()+"k";
+            const volumeIndicator = {
+                xLeft: volumeChartDimensions.marginLeft,
+                xRight: volumeChartDimensions.marginLeft+priceChartDimensions.width,
+                y: volumeChartDimensions.marginTop+volumeChartDimensions.height-percentageOfSpread*volumeChartDimensions.height
+            }
+            p.noStroke();
+            p.fill(...style.labelTextColor);
+            p.textAlign(p.LEFT);
+            p.text(volumeLabelText, volumeLabelAnchor.x, volumeLabelAnchor.y);
 
+            p.stroke(...style.horizontalIndicatorColor);
+            p.strokeWeight(style.horizontalindicatorStrokeWeight)
+            p.line(volumeIndicator.xLeft, volumeIndicator.y, volumeIndicator.xRight, volumeIndicator.y)
+        }
+    }
 
+    function getVolumeThresholds (volumeDomain) {
+        const spread = volumeDomain.max-volumeDomain.min;
+        let step;
+        if (spread > 150000) {
+            step = 50000
+        } else if (spread > 50000) {
+            step = 25000
+        } else {
+            step = 10000
+        }
+        let lowestRoundPrice = Math.floor((volumeDomain.min+step)/step)*step;
+        let highestRoundPrice = Math.floor((volumeDomain.max-step)/step)*step;
+        let thresholds = [];
+        for (let i = lowestRoundPrice; i<=highestRoundPrice; i+=step) {
+            thresholds.push(i)
+        }
+        return thresholds;
+    }
 
-    function drawVolumeBars (intradayToDraw) {
+    function drawVolumeBars (intradayToDraw, volumeDomain) {
         for (let i = 0; i < intradayToDraw.length; i++) {
-            
             if (displayMode === "light") {
                 p.stroke(...style.volumeBarStrokeColor)
                 p.strokeWeight(style.volumeBarStrokeWeight)
-                if (intradayToDraw[i]["close"]["value"]>intradayToDraw[i]["open"]["value"]) {
+                if (intradayToDraw[i].close>intradayToDraw[i].open) {
                     p.fill(...style.green)
                 } else {
                     p.fill(...style.red)
@@ -254,16 +347,17 @@ export default function intradayPriceChart (p) {
             } else {
                 p.fill(...style.chartBackgroundColor)
                 p.strokeWeight(style.volumeBarStrokeWeight)
-                if (intradayToDraw[i]["close"]["value"]>intradayToDraw[i]["open"]["value"]) {
+                if (intradayToDraw[i].close>intradayToDraw[i].open) {
                     p.stroke(...style.green)
                 } else {
                     p.stroke(...style.red)
                 }
             }
-
+            
+            const percentageOfSpread = (intradayToDraw[i].volume-volumeDomain.min)/(volumeDomain.max-volumeDomain.min)
             const columnSpan = getColumnSpan(i, intradayToDraw.length);
             const volumeBarWidth = columnSpan.width * 0.6;
-            const volumeBarHeight = intradayToDraw[i].volume.percentageOfSpread*volumeChartDimensions.height;
+            const volumeBarHeight = percentageOfSpread*volumeChartDimensions.height;
             const volumeBarAnchor = {
                 x: columnSpan.middle-volumeBarWidth/2,
                 y: volumeChartDimensions.marginTop+volumeChartDimensions.height-volumeBarHeight
@@ -298,11 +392,11 @@ export default function intradayPriceChart (p) {
             columnsVisible = cols;
         }
 
-        if (chartData.data) {
-            intradayData = chartData.data.intradayData;
-            vwapData = chartData.data.vwapData;
-            sma50Data = chartData.data.sma50Data;
-            metadata = chartData.metadata;
+        if (chartData) {
+            intradayData = chartData.intradayData;
+            vwapData = chartData.vwapData;
+            sma50Data = chartData.sma50Data;
+            sma200Data = chartData.sma200Data;
         }
 
         if (mode) {
@@ -323,12 +417,9 @@ export default function intradayPriceChart (p) {
     };
     
     
-    let keyPressTimeout;
     let shouldUpdate;
     p.draw = function () {
         if (p.keyIsPressed) {
-            // clearTimeout(keyPressTimeout);
-            // keyPressTimeout = setTimeout(keyPressed, 100)
             keyPressed();
         }
         if (shouldUpdate) {
@@ -340,16 +431,43 @@ export default function intradayPriceChart (p) {
                 const {firstVisible, lastVisible} = columnsVisible;
                 // console.log("p.draw: colsVisible", firstVisible,lastVisible)
                 const intradayToDraw = trimData(firstVisible,lastVisible,intradayData);
+                const priceDomain = getPriceDomain(intradayToDraw);
+                const volumeDomain = getVolumeDomain(intradayToDraw);
+                // console.log("IntradayChart draw volumeDomain", volumeDomain)
                 // console.log("p.draw: intradayToDraw", intradayToDraw)
                 const vwapToDraw = trimData(firstVisible,lastVisible,vwapData);
                 // console.log("p.draw: vwapToDraw", vwapToDraw);
                 const sma50ToDraw = trimData(firstVisible,lastVisible,sma50Data);
-                drawPriceChart(intradayToDraw, vwapToDraw, sma50ToDraw);
-                drawVolumeChart(intradayToDraw);
+                const sma200ToDraw = trimData(firstVisible, lastVisible, sma200Data)
+                drawPriceChart(intradayToDraw, vwapToDraw, sma50ToDraw, sma200ToDraw, priceDomain);
+                drawVolumeChart(intradayToDraw, volumeDomain);
             }
             shouldUpdate = false;
         }
     };    
+
+    function getPriceDomain (intradayToDraw) {
+        let allValues = [];
+        for (let element of intradayToDraw) {
+            allValues.push(
+                element.open,
+                element.close,
+                element.high,
+                element.low,
+            )
+        }
+        return {min: Math.min(...allValues), max: Math.max(...allValues)}
+    }
+
+    function getVolumeDomain (intradayToDraw) {
+        let volumes = [];
+        for (let element of intradayToDraw) {
+            volumes.push(
+                element.volume,
+            )
+        }
+        return {min: Math.min(...volumes), max: Math.max(...volumes)}
+    }
     
     function keyPressed () {
         

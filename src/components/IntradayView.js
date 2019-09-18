@@ -29,8 +29,10 @@ function IntradayView (props) {
         displayMode
     } = props;
 
+    const className = displayMode === "light" ? "intradayView light" : "intradayView dark";
+
     return (
-        <div className="intradayView">
+        <div className={className}>
             {/* {console.log("intradayView: props.intradayData", intradayData)} */}
             <IntradayChartWrapper 
                 key={chartKey} 

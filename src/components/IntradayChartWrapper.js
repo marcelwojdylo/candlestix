@@ -49,7 +49,7 @@ export class IntradayChartWrapper extends Component {
                             chartData={chartData}
                             cols={{
                                 firstVisible:0, 
-                                lastVisible: chartData.data.intradayData.length,
+                                lastVisible: chartData.intradayData.length,
                             }} 
                             mode={displayMode}/>
                         : <h3>Resize pending</h3>

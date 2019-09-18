@@ -1,41 +1,83 @@
+
 body {
-  /* background-color: rgb(12, 12, 12); */
+  background-color: rgb(55, 3, 90);
   color: white;
   text-align: center;
 }
 
 .intraday {
   width: 95vw;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  /* display: flex; */
+  /* flex-direction: column; */
+  /* align-items: center; */
   margin: 0 auto 0 auto;
 }
 
 .intradayQuery {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 0.2em 1em 0.2em 1em;
   color: white;
+  background-color: rgb(255, 204, 0);
+  height:6vh;
+  width: 100%
+}
+
+.intradayQuery form {
+  width: 17rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+.intradayQuery button, button:focus {
+  background-color: rgb(255, 204, 0);
+  border: 2px solid black;
+  text-align: center;
+  font-size: 0.8em;
+  padding: 0.3rem 1rem 0.3rem 1rem;
+  outline: none;
+}
+
+.intradayQuery input {
+  background-color: rgb(255, 204, 0);
+  border: 2px solid black;
+  width: 3.4rem;
+  font-size: 0.8em;
+  padding: 0.3rem 1rem 0.3rem 1rem;
+}
+
+.intradayQuery input:focus {
+  outline: none;
+  background-color: antiquewhite
+}
+
+.intradayQuery select, select:focus {
+  background-color: rgb(255, 204, 0);
+  border: 2px solid black;
+  border-radius: 0;
+  box-sizing: border-box;
+  /* width: 3.4rem; */
+  font-size: 0.8em;
+  padding: 0.3rem 1rem 0.3rem 1rem;
+  outline: none;
 }
 
 .intradayView {
   width: 100%;
+  box-sizing: border-box;
+  padding: 1em;
+}
+
+.light {
+  background-color: rgb(240, 240, 240);
+}
+
+.dark {
+  background-color: rgb(0, 2, 10);
 }
 
 .intradayChartWrapper {
-  height: 90vh;
-}
-
-.intradayPriceChartWrapper {
-  /* width: 100%; */
-  height: 60vh;
-  margin: 1em 0 0 0;
-}
-
-.intradayVolumeChartWrapper {
-  /* width: 100%; */
-  height: 20vh;
-  margin: 1em 0 0 0;
-}
-
-.App {
-  text-align: center;
+  height: 85vh;
 }
