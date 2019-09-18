@@ -22,7 +22,7 @@ export class IntradayQuery extends Component {
                             <option value="compact">compact</option>
                             <option value="full">full</option>
                         </select> */}
-                        <button type="submit">view</button>
+                        <button type="submit" onClick={handleSubmit}>view</button>
                     </form>
                 </div>
             </div>
