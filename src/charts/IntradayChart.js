@@ -19,18 +19,18 @@ export default function intradayPriceChart (p) {
         labelTextColor: [96, 141, 214],
         verticalIndicatorColor: [59, 86, 130, 70],
         verticalindicatorStrokeWeight: 0.5,
-        horizontalIndicatorColor: [171, 207, 237],
+        horizontalIndicatorColor: [171, 207, 237, 90],
         horizontalindicatorStrokeWeight: 0.5,
         green: [52, 224, 170],
         red: [201, 60, 0],
         candlestickStrokeWeight: 1.4,
         volumeBarStrokeWeight: 1.4,
-        vwapStrokeColor: [255, 204, 0],
+        vwapStrokeColor: [237, 130, 0],
         vwapStrokeWeight: 1.2,
-        sma50StrokeColor: [137, 178, 240],
-        sma50StrokeWeight: 1.2,
-        sma200StrokeColor: [0, 83, 201],
-        sma200StrokeWeight: 1.2
+        sma50StrokeColor: [16, 224, 176],
+        sma50StrokeWeight: 0.5,
+        sma200StrokeColor: [16, 224, 92],
+        sma200StrokeWeight: 0.5
     }
     let styleLight = {
         backgroundColor: [240],
@@ -38,7 +38,7 @@ export default function intradayPriceChart (p) {
         labelTextColor: [71, 135, 204],
         verticalIndicatorColor: [154, 192, 217, 70],
         verticalindicatorStrokeWeight: 0.5,
-        horizontalIndicatorColor: [130, 170, 200],
+        horizontalIndicatorColor: [130, 170, 200, 80],
         horizontalindicatorStrokeWeight: 0.5,
         candlestickStrokeColor: [60],
         candlestickStrokeWeight: 1,
@@ -46,12 +46,12 @@ export default function intradayPriceChart (p) {
         volumeBarStrokeWeight: 1,
         green: [255],
         red: [209, 19, 57],
-        vwapStrokeColor: [255, 204, 0],
+        vwapStrokeColor: [237, 130, 0],
         vwapStrokeWeight: 1.5,
-        sma50StrokeColor: [137, 178, 240],
-        sma50StrokeWeight: 1.3,
-        sma200StrokeColor: [0, 83, 201],
-        sma200StrokeWeight: 1.3
+        sma50StrokeColor: [16, 224, 176],
+        sma50StrokeWeight: 0.5,
+        sma200StrokeColor: [16, 224, 92],
+        sma200StrokeWeight: 0.5
     }    
     
     
@@ -96,7 +96,7 @@ export default function intradayPriceChart (p) {
     
     function drawVWAPPlot (vwapToDraw, priceDomain) {
         const {length} = vwapToDraw;
-        for (let i = 0; i < length-1; i++) {
+        for (let i = 0; i < length; i++) {
             const percentageOfSpread = (vwapToDraw[i]-priceDomain.min)/(priceDomain.max-priceDomain.min)
             if (percentageOfSpread < 1 && percentageOfSpread > 0) {
                 const thisColumnSpan = getColumnSpan(i, length);
@@ -111,10 +111,20 @@ export default function intradayPriceChart (p) {
                 )
             }
         }
+        const lastVWAPValue = vwapToDraw[vwapToDraw.length-1];
+        const lastVWAPPOS = (lastVWAPValue-priceDomain.min)/(priceDomain.max-priceDomain.min)
+        const labelPosition = {
+            x: priceChartDimensions.marginLeft+priceChartDimensions.width+5,
+            y: priceChartDimensions.marginTop+priceChartDimensions.height-lastVWAPPOS*priceChartDimensions.height
+        }
+        p.fill(...style.vwapStrokeColor);
+        p.strokeWeight(0);
+        p.textAlign(p.LEFT);
+        p.text("VWAP", labelPosition.x, labelPosition.y);
     }
     function draw50SMAPlot (sma50ToDraw, priceDomain) {
         const {length} = sma50ToDraw;
-        for (let i = 0; i < length-1; i++) {
+        for (let i = 0; i < length; i++) {
             const thisPOS = (sma50ToDraw[i]-priceDomain.min)/(priceDomain.max-priceDomain.min)
             const nextPOS = (sma50ToDraw[i+1]-priceDomain.min)/(priceDomain.max-priceDomain.min)
             if (
@@ -131,6 +141,16 @@ export default function intradayPriceChart (p) {
                 )
             }
         }
+        const last50SMAValue = sma50ToDraw[sma50ToDraw.length-1];
+        const lastSMAPOS = (last50SMAValue-priceDomain.min)/(priceDomain.max-priceDomain.min)
+        const labelPosition = {
+            x: priceChartDimensions.marginLeft+priceChartDimensions.width+5,
+            y: priceChartDimensions.marginTop+priceChartDimensions.height-lastSMAPOS*priceChartDimensions.height
+        }
+        p.fill(...style.sma50StrokeColor);
+        p.strokeWeight(0);
+        p.textAlign(p.LEFT);
+        p.text("50SMA", labelPosition.x, labelPosition.y);
     }
     function draw200SMAPlot (sma200ToDraw, priceDomain) {
         const {length} = sma200ToDraw;
@@ -151,6 +171,16 @@ export default function intradayPriceChart (p) {
                 )
             }
         }
+        const last200SMAValue = sma200ToDraw[sma200ToDraw.length-1];
+        const lastSMAPOS = (last200SMAValue-priceDomain.min)/(priceDomain.max-priceDomain.min)
+        const labelPosition = {
+            x: priceChartDimensions.marginLeft+priceChartDimensions.width+5,
+            y: priceChartDimensions.marginTop+priceChartDimensions.height-lastSMAPOS*priceChartDimensions.height
+        }
+        p.fill(...style.sma200StrokeColor);
+        p.strokeWeight(0);
+        p.textAlign(p.LEFT);
+        p.text("200SMA", labelPosition.x, labelPosition.y);
     }
     
     function drawTimeLabels (intradayToDraw) {
