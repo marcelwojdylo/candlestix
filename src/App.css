@@ -6,16 +6,19 @@ body {
 }
 
 button, button:focus {
-  background-color: rgb(255, 204, 0);
-  border: 2px solid black;
+  background-color: rgb(2, 8, 58);
+  color: white;
+  border: 1px solid white;
   text-align: center;
   font-size: 0.8em;
   padding: 0.3rem 1rem 0.3rem 1rem;
   outline: none;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+  monospace;
 }
 
 button:active {
-  border: 2px dotted black;
+  border: 1px dotted white;
 }
 
 .intraday {
@@ -33,7 +36,9 @@ button:active {
 }
 
 .footer button {
-  border: none
+  border: 1px solid white;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+  monospace;
 }
 
 .intradayQuery {
@@ -43,14 +48,14 @@ button:active {
   box-sizing: border-box;
   padding: 0.2em 1em 0.2em 1em;
   color: white;
-  background-color: rgb(255, 204, 0);
+  background-color: rgb(2, 8, 58);
   height:6vh;
   width: 100%
 }
 
 .intradayQuery p {
   font-size: 0.7em;
-  color: black;
+  color: white;
 }
 
 .intradayQuery form {
@@ -61,22 +66,28 @@ button:active {
 
 
 .intradayQuery input {
-  background-color: rgb(255, 204, 0);
-  border: 2px solid black;
+  color: white;
+  background-color: rgb(2, 8, 58);
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+  monospace;
+  border: 1px solid white;
   width: 3.4rem;
   font-size: 0.8em;
   padding: 0.3rem 1rem 0.3rem 1rem;
 }
 
 .intradayQuery input:focus {
+  color: black;
   outline: none;
   background-color: antiquewhite;
-  border: 2px dotted black;
 }
 
 .intradayQuery select, select:focus {
-  background-color: rgb(255, 204, 0);
-  border: 2px solid black;
+  color: white;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+  monospace;
+  background-color: rgb(2, 8, 58);
+  border: 1px solid white;
   border-radius: 0;
   box-sizing: border-box;
   /* width: 3.4rem; */
