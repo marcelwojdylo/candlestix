@@ -319,7 +319,9 @@ export default function intradayPriceChart (p) {
     function getVolumeThresholds (volumeDomain) {
         const spread = volumeDomain.max-volumeDomain.min;
         let step;
-        if (spread > 150000) {
+        if (spread > 800000) {
+            step = 200000
+        } else if (spread > 150000) {
             step = 50000
         } else if (spread > 50000) {
             step = 25000
@@ -475,12 +477,14 @@ export default function intradayPriceChart (p) {
         if (p.keyCode === p.DOWN_ARROW) {
             if (columnsVisible.firstVisible!==0) {
                 columnsVisible.firstVisible--;
-            } else if (columnsVisible.lastVisible!==intradayData.length) {
+            }
+            if (columnsVisible.lastVisible!==intradayData.length) {
                 columnsVisible.lastVisible++;
             }
             // console.log("keyPressed: UP_ARROW pressed, colsVisible:", columnsVisible.firstVisible, columnsVisible.lastVisible)
-        } else if (p.keyCode === p.UP_ARROW && columnsVisible.firstVisible!==columnsVisible.lastVisible) {
+        } else if (p.keyCode === p.UP_ARROW && columnsVisible.lastVisible-columnsVisible.firstVisible > 4) {
             columnsVisible.firstVisible++;
+            columnsVisible.lastVisible--;
             // console.log("keyPressed: DOWN_ARROW pressed, colsVisible:", columnsVisible.firstVisible, columnsVisible.lastVisible)
         } else if (p.keyCode === p.LEFT_ARROW && columnsVisible.firstVisible!==0) {
             columnsVisible.firstVisible--;
