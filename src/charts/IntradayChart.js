@@ -30,7 +30,10 @@ export default function intradayPriceChart (p) {
         sma50StrokeColor: [16, 224, 176],
         sma50StrokeWeight: 0.5,
         sma200StrokeColor: [16, 224, 92],
-        sma200StrokeWeight: 0.5
+        sma200StrokeWeight: 0.5,
+        priceLabelsFontSize: 11,
+        timeLabelsFontSize: 11,
+        curveLabelsFontSize: 10,
     }
     let styleLight = {
         backgroundColor: [240],
@@ -51,7 +54,10 @@ export default function intradayPriceChart (p) {
         sma50StrokeColor: [16, 224, 176],
         sma50StrokeWeight: 0.5,
         sma200StrokeColor: [16, 224, 92],
-        sma200StrokeWeight: 0.5
+        sma200StrokeWeight: 0.5,
+        priceLabelsFontSize: 11,
+        timeLabelsFontSize: 11,
+        curveLabelsFontSize: 10,
     }    
     
     
@@ -59,7 +65,7 @@ export default function intradayPriceChart (p) {
         return {
             marginLeft: canvasWidth*0.01,
             marginTop: 0,
-            width: canvasWidth*0.95,
+            width: canvasWidth*0.99-50,
             height: canvasHeight*0.7,
         }
     }
@@ -68,7 +74,7 @@ export default function intradayPriceChart (p) {
         return {
             marginLeft: canvasWidth*0.01,
             marginTop: priceChartDimensions.marginTop+priceChartDimensions.height+canvasHeight*0.05,
-            width: canvasWidth*0.95,
+            width: canvasWidth*0.99-50,
             height: canvasHeight*0.3,
         }
     }
@@ -120,6 +126,7 @@ export default function intradayPriceChart (p) {
         p.fill(...style.vwapStrokeColor);
         p.strokeWeight(0);
         p.textAlign(p.LEFT);
+        p.textFont(robotoThin, style.curveLabelsFontSize);
         p.text("VWAP", labelPosition.x, labelPosition.y);
     }
     function draw50SMAPlot (sma50ToDraw, priceDomain) {
@@ -149,6 +156,7 @@ export default function intradayPriceChart (p) {
         }
         p.fill(...style.sma50StrokeColor);
         p.strokeWeight(0);
+        p.textFont(robotoThin, style.curveLabelsFontSize);
         p.textAlign(p.LEFT);
         p.text("50SMA", labelPosition.x, labelPosition.y);
     }
@@ -159,15 +167,15 @@ export default function intradayPriceChart (p) {
             const nextPOS = (sma200ToDraw[i+1]-priceDomain.min)/(priceDomain.max-priceDomain.min)
             if (
                 thisPOS > 0 && thisPOS < 1 &&
-                nextPOS > 0 && nextPOS < 1 
-            ) {
+                nextPOS > 0 && nextPOS < 1     
+            ){
                 const thisColumnSpan = getColumnSpan(i, length);
                 const nextColumnSpan = getColumnSpan(i+1, length);
                 p.stroke(...style.sma200StrokeColor);
                 p.strokeWeight(style.sma200StrokeWeight);
                 p.line(
-                    thisColumnSpan.middle, priceChartDimensions.marginTop+priceChartDimensions.height-thisPOS*priceChartDimensions.height,
-                    nextColumnSpan.middle, priceChartDimensions.marginTop+priceChartDimensions.height-nextPOS*priceChartDimensions.height
+                thisColumnSpan.middle, priceChartDimensions.marginTop+priceChartDimensions.height-thisPOS*priceChartDimensions.height,
+                nextColumnSpan.middle, priceChartDimensions.marginTop+priceChartDimensions.height-nextPOS*priceChartDimensions.height
                 )
             }
         }
@@ -179,6 +187,7 @@ export default function intradayPriceChart (p) {
         }
         p.fill(...style.sma200StrokeColor);
         p.strokeWeight(0);
+        p.textFont(robotoThin, style.curveLabelsFontSize);
         p.textAlign(p.LEFT);
         p.text("200SMA", labelPosition.x, labelPosition.y);
     }
@@ -202,6 +211,7 @@ export default function intradayPriceChart (p) {
                 p.noStroke();
                 p.fill(...style.labelTextColor)
                 p.textAlign(p.CENTER);
+                p.textFont(robotoThin, style.timeLabelsFontSize);
                 p.text(timestamp.slice(11,16), labelAnchor.x, labelAnchor.y)
             }
         }
@@ -223,6 +233,7 @@ export default function intradayPriceChart (p) {
             p.noStroke();
             p.fill(...style.labelTextColor);
             p.textAlign(p.LEFT);
+            p.textFont(robotoThin, style.priceLabelsFontSize);
             p.text("$"+threshold.toString(), priceLabelAnchor.x, priceLabelAnchor.y);
 
             p.stroke(...style.horizontalIndicatorColor);
@@ -338,6 +349,7 @@ export default function intradayPriceChart (p) {
             p.noStroke();
             p.fill(...style.labelTextColor);
             p.textAlign(p.LEFT);
+            p.textFont(robotoThin, style.priceLabelsFontSize);
             p.text(volumeLabelText, volumeLabelAnchor.x, volumeLabelAnchor.y);
 
             p.stroke(...style.horizontalIndicatorColor);

@@ -76,7 +76,7 @@ export class Intraday extends Component {
                     } else {
                         this.setState({
                             apiTimeout: this.state.apiTimeout-1,
-                            apiCallStatus: `API call limit reached (1/min). Retry in ${this.state.apiTimeout}s`
+                            apiCallStatus: `API call limit reached (1/min). Retrying in ${this.state.apiTimeout}s`
                         })
                     }
                 } else {
@@ -132,9 +132,9 @@ export class Intraday extends Component {
                         ? <IntradayView chartData={chartData} displayMode={displayMode}/>
                         : <><h3>Fetching data from AlphaVantage API, please hold.</h3><p><b>Status: </b>{apiCallStatus}</p></>
                 }   
-                <div className="footer">
+                {/* <div className="footer">
                     <button onClick={toggleDisplayMode}>toggle display mode</button>
-                </div>
+                </div> */}
             </div>
         )
     }
