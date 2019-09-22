@@ -26,7 +26,10 @@ function IntradayView (props) {
 
     const {
         chartData,
-        displayMode
+        displayMode,
+        drawVWAP,
+        draw50SMA,
+        draw200SMA,
     } = props;
 
     const className = displayMode === "light" ? "intradayView light" : "intradayView dark";
@@ -37,7 +40,11 @@ function IntradayView (props) {
             <IntradayChartWrapper 
                 key={chartKey} 
                 chartData={chartData}
-                displayMode={displayMode}/>
+                displayMode={displayMode}
+                drawVWAP={drawVWAP}
+                draw50SMA={draw50SMA}
+                draw200SMA={draw200SMA}
+            />
         </div>
     )
 }

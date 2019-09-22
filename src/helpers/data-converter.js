@@ -1,22 +1,28 @@
 class DataConverter {
 
-    convertForCharting (intradayData, vwapData, sma50Data, sma200Data) {
+    convertForCharting (intradayData, vwapData=null, sma50Data=null, sma200Data=null) {
 
         intradayData = this.truncateToTodaysData(intradayData);
-        vwapData = this.truncateToTodaysData(vwapData);
-        sma50Data = this.truncateToTodaysData(sma50Data);
-        sma200Data = this.truncateToTodaysData(sma200Data);
-        
-
         intradayData = this.parseIntraday(intradayData);
-        vwapData = this.parseVWAP(vwapData);
-        sma50Data = this.parseSMA(sma50Data);
-        sma200Data = this.parseSMA(sma200Data);
-
         intradayData = intradayData.reverse();
-        vwapData = vwapData.reverse();
-        sma50Data = sma50Data.reverse();
-        sma200Data = sma200Data.reverse();
+        
+        if (vwapData !== null) {
+            vwapData = this.truncateToTodaysData(vwapData);
+            vwapData = this.parseVWAP(vwapData);
+            vwapData = vwapData.reverse();
+        }
+        
+        if (sma50Data !== null) {
+            sma50Data = this.truncateToTodaysData(sma50Data);
+            sma50Data = this.parseSMA(sma50Data);
+            sma50Data = sma50Data.reverse();
+        }
+        
+        if (sma200Data !== null) {
+            sma200Data = this.truncateToTodaysData(sma200Data);
+            sma200Data = this.parseSMA(sma200Data);
+            sma200Data = sma200Data.reverse();
+        }
         
         // console.log(
         //     "DataConverter.convertForCharting:",
