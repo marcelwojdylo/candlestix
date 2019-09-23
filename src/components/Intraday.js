@@ -15,7 +15,7 @@ export class Intraday extends Component {
         initialRequestSent: false,
         apiCallStatus: "idle",
         apiTimeout: 60,
-        apiCallsFailed: 0,
+        apiTimeoutsElapsed: 0,
     }
 
     // componentDidMount = () => {
@@ -30,14 +30,18 @@ export class Intraday extends Component {
         this.setState({
             apiCallStatus: "fetching intraday prices",
             initialRequestSent: true,
+            apiTimeout: 60,
         })
         clearTimeout(this.apiTimeoutTicker)
         alphaVantageService.getIntraday(symbol, interval, outputsize)
         .then(response => {
             intradayData = response;
+            this.setState({
+                apiTimeoutsElapsed: 0,
+            })
             if (drawVWAP) {
                 this.setState({
-                    apiCallStatus: "fetching VWAP"
+                    apiCallStatus: "fetching VWAP",
                 })
                 return alphaVantageService.getVWAP(symbol, interval);
             }
@@ -88,19 +92,20 @@ export class Intraday extends Component {
             })
         })
         .catch(error => {
-            console.log(error);
+            // console.log(error);
             this.apiTimeoutTicker = setInterval(() => {
-                if (this.state.apiCallsFailed < 3) {
+                // console.log("Intraday.js state.apiTimeout", this.state.apiTimeout)
+                if (this.state.apiTimeoutsElapsed < 3) {
                     if (this.state.apiTimeout === 0) {
-                        this.fetchDataFromApi(symbol, interval, outputsize)
+                        this.fetchDataFromApi(symbol, interval, outputsize, drawVWAP, draw50SMA, draw200SMA)
                         this.setState({
                             apiTimeout: 60,
-                            apiCallsFailed: this.state.apiCallsFailed+1
+                            apiTimeoutsElapsed: this.state.apiTimeoutsElapsed+1
                         })
                     } else {
                         this.setState({
                             apiTimeout: this.state.apiTimeout-1,
-                            apiCallStatus: `API call limit reached (1/min). Retrying in ${this.state.apiTimeout}s`
+                            apiCallStatus: `API call limit reached (5/min). Retrying in ${this.state.apiTimeout}s`
                         })
                     }
                 } else {
@@ -117,7 +122,6 @@ export class Intraday extends Component {
 
     handleSubmit = (event) => {
         event.preventDefault();
-        console.log("Intraday.js handleSubmit", event.target.drawVWAP.value)
         const {symbol, interval, outputsize} = this.state;
         const {drawVWAP, draw50SMA, draw200SMA} = event.target;
         this.fetchDataFromApi(symbol, interval, outputsize, drawVWAP.checked, draw50SMA.checked, draw200SMA.checked)
@@ -147,11 +151,16 @@ export class Intraday extends Component {
         const viewPanelContent = () => {
             if (initialRequestSent) {
                 return dataReady 
-                    ? <IntradayView
-                        chartData={chartData} 
-                        displayMode={displayMode}
-                    />
-                    : <><h3>Fetching data from AlphaVantage API, please hold.</h3><p><b>Status: </b>{apiCallStatus}</p></>
+                    ? 
+                        <IntradayView
+                            chartData={chartData} 
+                            displayMode={displayMode}
+                        />
+                    : 
+                        <>
+                            <h3>Fetching data from AlphaVantage API, please hold.</h3>
+                            <p><b>Status: </b>{apiCallStatus}</p>
+                        </>
             } else {
                 return (
                     <article className="instructionsCard">

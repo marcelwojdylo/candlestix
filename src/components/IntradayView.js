@@ -25,6 +25,7 @@ function IntradayView (props) {
     } = props;
 
     const className = displayMode === "light" ? "intradayView light" : "intradayView dark";
+    // console.log("IntradayView.js : props", props)
 
     return (
         <div className={className}>

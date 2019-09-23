@@ -94,9 +94,9 @@ export default function intradayPriceChart (p) {
         volumeBarStrokeWeight: 1.4,
         vwapStrokeColor: [255, 204, 0],
         vwapStrokeWeight: 1.2,
-        sma50StrokeColor: [16, 224, 176],
+        sma50StrokeColor: [101, 193, 230],
         sma50StrokeWeight: 0.5,
-        sma200StrokeColor: [16, 224, 92],
+        sma200StrokeColor: [32, 116, 176],
         sma200StrokeWeight: 0.5,
         priceLabelsFontSize: 11,
         timeLabelsFontSize: 11,
@@ -241,7 +241,7 @@ export default function intradayPriceChart (p) {
             if (
                 thisPOS > 0 && thisPOS < 1 &&
                 nextPOS > 0 && nextPOS < 1     
-                ){
+            ){
                 const thisColumnSpan = getColumnSpan(i, length);
                 const nextColumnSpan = getColumnSpan(i+1, length);
                 p.stroke(...style.sma200StrokeColor);

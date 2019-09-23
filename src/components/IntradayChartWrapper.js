@@ -38,7 +38,7 @@ export class IntradayChartWrapper extends Component {
             chartData,
             displayMode,
         } = this.props;
-        // console.log("chart wrapper render", this.props.drawVWAP)
+        // console.log("chart wrapper : props", this.props)
         return (
             <div className="intradayChartWrapper" ref={r => this.wrapperDiv = r}>
                 {

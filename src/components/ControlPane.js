@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 
+
 export class ControlPane extends Component {
+
     render() {
         const {symbol, interval, handleChange, handleSubmit} = this.props;
         return (
@@ -15,7 +17,7 @@ export class ControlPane extends Component {
                         <option value="30min">30 minutes</option>
                         <option value="60min">60 minutes</option>
                     </select>
-                    <input type="checkbox" name="drawVWAP" checked></input>
+                    <input type="checkbox" name="drawVWAP" defaultChecked></input>
                     VWAP
                     <input type="checkbox" name="draw50SMA"></input>
                     50SMA

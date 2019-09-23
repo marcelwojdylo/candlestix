@@ -14,7 +14,7 @@ class AlphaVantageService {
     
     getIntraday = async (symbol, interval, outputsize = 'full') => {
         const data = await this.api.get(
-            `?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&outputsize=${outputsize}&datatype=json&apikey=${this.apiKey}`
+            `?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&outputsize=${outputsize}&datatype=json&apikey=${this.apiKey2}`
         )
         .then(response => response.data[`Time Series (${interval})`])
         .catch(error => console.log(error))
@@ -23,7 +23,7 @@ class AlphaVantageService {
 
     getVWAP = async (symbol, interval) => {
         const data = await this.api.get(
-            `?function=VWAP&symbol=${symbol}&interval=${interval}&apikey=${this.apiKey}`
+            `?function=VWAP&symbol=${symbol}&interval=${interval}&apikey=${this.apiKey2}`
         )
         .then(response => response.data['Technical Analysis: VWAP'])
         .catch(error => console.log(error))
