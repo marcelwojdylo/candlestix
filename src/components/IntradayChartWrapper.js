@@ -37,9 +37,6 @@ export class IntradayChartWrapper extends Component {
         const {
             chartData,
             displayMode,
-            drawVWAP,
-            draw50SMA,
-            draw200SMA
         } = this.props;
         // console.log("chart wrapper render", this.props.drawVWAP)
         return (
@@ -50,9 +47,6 @@ export class IntradayChartWrapper extends Component {
                             width={width} 
                             height={height}
                             chartData={chartData}
-                            drawVWAP={drawVWAP}
-                            draw50SMA={draw50SMA}
-                            draw200SMA={draw200SMA}
                             cols={{
                                 firstVisible:0, 
                                 lastVisible: chartData.intradayData.length,

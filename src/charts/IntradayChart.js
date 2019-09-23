@@ -1,20 +1,84 @@
 export default function intradayPriceChart (p) {
-
+    
     let canvasWidth = 0;
     let canvasHeight = 0;
     let intradayData;
     let vwapData;
     let sma50Data;
     let sma200Data;
-    let drawVWAP = false;
-    let draw50SMA = false;
-    let draw200SMA = false;
     let priceChartDimensions;
     let volumeChartDimensions;
     let robotoThin;
     let style;
     let displayMode;
     let columnsVisible;
+    let shouldUpdate;
+    
+    
+    p.myCustomRedrawAccordingToNewPropsHandler = function (props) {
+        const {height, width, mode, chartData, cols} = props;
+        if (width && height) {
+            canvasWidth = width;
+            canvasHeight = height;
+            priceChartDimensions = setPriceChartDimensions();
+            volumeChartDimensions = setVolumeChartDimensions();
+        }
+        if (cols) {
+            columnsVisible = cols;
+        }
+        
+        if (chartData) {
+            intradayData = chartData.intradayData;
+            vwapData = chartData.vwapData;
+            sma50Data = chartData.sma50Data;
+            sma200Data = chartData.sma200Data;
+        }
+        
+        if (mode) {
+            displayMode = mode;
+            style = displayMode === "light" ? styleLight : styleDark;
+        }
+        shouldUpdate = true;
+        p.redraw()
+    };
+    
+    p.preload = function () {
+        robotoThin = p.loadFont('/fonts/Roboto-Medium.ttf')
+    }
+    
+    p.setup = function () {
+        // p.noLoop();
+        p.textFont(robotoThin, 10);
+    };
+    
+    
+    p.draw = function () {
+        if (p.keyIsPressed) {
+            keyPressed();
+        }
+        if (shouldUpdate) {
+            if (canvasWidth !== 0) {
+                p.createCanvas(canvasWidth, canvasHeight);
+                p.background(style.backgroundColor);
+            }
+
+                //TODO: Uncouple drawing prices from drawing curves
+            const {firstVisible, lastVisible} = columnsVisible;
+            // console.log("p.draw: colsVisible", firstVisible,lastVisible)
+            const intradayToDraw = trimData(firstVisible,lastVisible,intradayData);
+            const priceDomain = getPriceDomain(intradayToDraw);
+            const volumeDomain = getVolumeDomain(intradayToDraw);
+            // console.log("IntradayChart draw volumeDomain", volumeDomain)
+            // console.log("p.draw: intradayToDraw", intradayToDraw)
+            const vwapToDraw = trimData(firstVisible,lastVisible,vwapData);
+            // console.log("p.draw: vwapToDraw", vwapToDraw);
+            const sma50ToDraw = trimData(firstVisible,lastVisible,sma50Data);
+            const sma200ToDraw = trimData(firstVisible, lastVisible, sma200Data)
+            drawPriceChart(intradayToDraw, vwapToDraw, sma50ToDraw, sma200ToDraw, priceDomain);
+            drawVolumeChart(intradayToDraw, volumeDomain);
+            shouldUpdate = false;
+        }
+    };    
 
     let styleDark = {
         backgroundColor: [0, 2, 10],
@@ -69,7 +133,7 @@ export default function intradayPriceChart (p) {
             marginLeft: canvasWidth*0.01,
             marginTop: 0,
             width: canvasWidth*0.99-50,
-            height: canvasHeight*0.7,
+            height: canvasHeight*0.67,
         }
     }
     
@@ -78,19 +142,19 @@ export default function intradayPriceChart (p) {
             marginLeft: canvasWidth*0.01,
             marginTop: priceChartDimensions.marginTop+priceChartDimensions.height+canvasHeight*0.05,
             width: canvasWidth*0.99-50,
-            height: canvasHeight*0.4,
+            height: canvasHeight*0.20,
         }
     }
     
     function drawPriceChart(intradayToDraw, vwapToDraw, sma50ToDraw, sma200ToDraw, priceDomain) {
         drawPriceChartBackground();
-        if (draw50SMA) {
+        if (sma50ToDraw !== null) {
             draw50SMAPlot(sma50ToDraw, priceDomain);
         }
-        if (draw200SMA) {
+        if (sma200ToDraw !== null) {
             draw200SMAPlot(sma200ToDraw, priceDomain);
         }
-        if (drawVWAP) {
+        if (vwapToDraw !== null) {
             drawVWAPPlot(vwapToDraw, priceDomain);
         }
         drawTimeLabels(intradayToDraw);
@@ -106,11 +170,11 @@ export default function intradayPriceChart (p) {
             priceChartDimensions.marginTop,
             priceChartDimensions.width,
             priceChartDimensions.height
-            )
-        }
+        )
+    }
         
-        function drawVWAPPlot (vwapToDraw, priceDomain) {
-            const {length} = vwapToDraw;
+    function drawVWAPPlot (vwapToDraw, priceDomain) {
+        const {length} = vwapToDraw;
         for (let i = 0; i < length; i++) {
             const percentageOfSpread = (vwapToDraw[i]-priceDomain.min)/(priceDomain.max-priceDomain.min)
             if (percentageOfSpread < 1 && percentageOfSpread > 0) {
@@ -434,77 +498,6 @@ export default function intradayPriceChart (p) {
         }
     }
 
-    p.myCustomRedrawAccordingToNewPropsHandler = function (props) {
-        const {height, width, mode, chartData, cols} = props;
-        drawVWAP = props.drawVWAP;
-        draw50SMA = props.draw50SMA;
-        draw200SMA = props.draw200SMA;
-        if (width && height) {
-            canvasWidth = width;
-            canvasHeight = height;
-            priceChartDimensions = setPriceChartDimensions();
-            volumeChartDimensions = setVolumeChartDimensions();
-        }
-        if (cols) {
-            columnsVisible = cols;
-        }
-        
-        if (chartData) {
-            intradayData = chartData.intradayData;
-            vwapData = chartData.vwapData;
-            sma50Data = chartData.sma50Data;
-            sma200Data = chartData.sma200Data;
-        }
-        
-        if (mode) {
-            displayMode = mode;
-            style = displayMode === "light" ? styleLight : styleDark;
-        }
-        shouldUpdate = true;
-        p.redraw()
-    };
-    
-    p.preload = function () {
-        robotoThin = p.loadFont('/fonts/Roboto-Medium.ttf')
-    }
-    
-    p.setup = function () {
-        // p.noLoop();
-        p.textFont(robotoThin, 10);
-    };
-    
-    
-    let shouldUpdate;
-    p.draw = function () {
-        if (p.keyIsPressed) {
-            keyPressed();
-        }
-        if (shouldUpdate) {
-            if (canvasWidth !== 0) {
-                p.createCanvas(canvasWidth, canvasHeight);
-                p.background(style.backgroundColor);
-            }
-            if (intradayData && vwapData && sma50Data) {
-
-                //TODO: Uncouple drawing candlesticks from drawing curves
-                const {firstVisible, lastVisible} = columnsVisible;
-                // console.log("p.draw: colsVisible", firstVisible,lastVisible)
-                const intradayToDraw = trimData(firstVisible,lastVisible,intradayData);
-                const priceDomain = getPriceDomain(intradayToDraw);
-                const volumeDomain = getVolumeDomain(intradayToDraw);
-                // console.log("IntradayChart draw volumeDomain", volumeDomain)
-                // console.log("p.draw: intradayToDraw", intradayToDraw)
-                const vwapToDraw = trimData(firstVisible,lastVisible,vwapData);
-                // console.log("p.draw: vwapToDraw", vwapToDraw);
-                const sma50ToDraw = trimData(firstVisible,lastVisible,sma50Data);
-                const sma200ToDraw = trimData(firstVisible, lastVisible, sma200Data)
-                drawPriceChart(intradayToDraw, vwapToDraw, sma50ToDraw, sma200ToDraw, priceDomain);
-                drawVolumeChart(intradayToDraw, volumeDomain);
-            }
-            shouldUpdate = false;
-        }
-    };    
-
     function getPriceDomain (intradayToDraw) {
         let allValues = [];
         for (let element of intradayToDraw) {
@@ -560,6 +553,6 @@ export default function intradayPriceChart (p) {
     }
 
     function trimData (firstVisible, lastVisible, data) {
-        return data.slice(firstVisible, lastVisible+1);
+        return data === null ? null : data.slice(firstVisible, lastVisible+1);
     }
 };

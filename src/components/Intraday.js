@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import alphaVantageService from '../services/alpha-vantage-service.js';
 import dataConverter from '../helpers/data-converter.js'
-import IntradayQuery from './IntradayQuery.js';
+import ControlPane from './ControlPane.js';
 import IntradayView from './IntradayView.js';
 
 export class Intraday extends Component {
@@ -11,9 +11,6 @@ export class Intraday extends Component {
         interval: "1min",
         outputsize: "full",
         chartData: [],
-        drawVWAP: false,
-        draw50SMA: false,
-        draw200SMA: false,
         dataReady: false,
         initialRequestSent: false,
         apiCallStatus: "idle",
@@ -28,12 +25,7 @@ export class Intraday extends Component {
 
     
 
-    fetchDataFromApi = (symbol, interval, outputsize) => {
-        const {
-            drawVWAP,
-            draw50SMA,
-            draw200SMA
-        } = this.state;
+    fetchDataFromApi = (symbol, interval, outputsize, drawVWAP, draw50SMA, draw200SMA) => {
         let intradayData, vwapData, sma50Data, sma200Data, convertedData;
         this.setState({
             apiCallStatus: "fetching intraday prices",
@@ -88,7 +80,7 @@ export class Intraday extends Component {
                 sma50Data, 
                 sma200Data
             );
-            console.log("Intraday.fetchDataFromApi data after conversion for charting", convertedData);
+            // console.log("Intraday.fetchDataFromApi data after conversion for charting", convertedData);
             this.setState({
                 chartData: convertedData,
                 apiCallStatus: "idle",
@@ -125,8 +117,10 @@ export class Intraday extends Component {
 
     handleSubmit = (event) => {
         event.preventDefault();
+        console.log("Intraday.js handleSubmit", event.target.drawVWAP.value)
         const {symbol, interval, outputsize} = this.state;
-        this.fetchDataFromApi(symbol, interval, outputsize)
+        const {drawVWAP, draw50SMA, draw200SMA} = event.target;
+        this.fetchDataFromApi(symbol, interval, outputsize, drawVWAP.checked, draw50SMA.checked, draw200SMA.checked)
         this.setState({
             dataReady: false,
         })
@@ -141,12 +135,8 @@ export class Intraday extends Component {
             outputsize,
             chartData,
             dataReady,
-            drawVWAP,
-            draw50SMA,
-            draw200SMA,
             initialRequestSent,
             apiCallStatus,
-            apiTimeout
         } = this.state;
         const {
             displayMode,
@@ -160,9 +150,6 @@ export class Intraday extends Component {
                     ? <IntradayView
                         chartData={chartData} 
                         displayMode={displayMode}
-                        drawVWAP={drawVWAP}
-                        draw50SMA={draw50SMA}
-                        draw200SMA={draw200SMA}
                     />
                     : <><h3>Fetching data from AlphaVantage API, please hold.</h3><p><b>Status: </b>{apiCallStatus}</p></>
             } else {
@@ -179,7 +166,7 @@ export class Intraday extends Component {
 
         return (
             <div className="intraday">
-                <IntradayQuery 
+                <ControlPane 
                     symbol={symbol} 
                     interval={interval} 
                     outputsize={outputsize} 

@@ -4,7 +4,13 @@ body {
   font-size: 15px;
   color: white;
   margin: 0;
+  height: 100%;
+  overflow: hidden;
   text-align: center;
+}
+
+div#root {
+  height: 100vh;
 }
 
 button, button:focus {
@@ -44,7 +50,7 @@ button:active {
   monospace;
 }
 
-.intradayQuery {
+.controlPane {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -56,19 +62,25 @@ button:active {
   width: 100%
 }
 
-.intradayQuery p {
+.controlPane p {
   font-size: 0.7em;
   color: white;
 }
 
-.intradayQuery form {
-  width: 17rem;
+.controlPane form {
+  /* width: 17rem; */
+  /* width: 100%; */
   display: flex;
   justify-content: space-between;
+  align-items: center;
+}
+
+.intradayQueryForm * {
+  margin: 0 0 0 1rem;
 }
 
 
-.intradayQuery input {
+.controlPane input[type="text"] {
   color: white;
   background-color: rgb(2, 8, 58);
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
@@ -79,13 +91,17 @@ button:active {
   padding: 0.3rem 1rem 0.3rem 1rem;
 }
 
-.intradayQuery input:focus {
+.controlPane input[type="text"]:focus {
   color: black;
   outline: none;
   background-color: antiquewhite;
 }
 
-.intradayQuery select, select:focus {
+.controlPane input[type="checkbox"] {
+
+}
+
+.controlPane select, select:focus {
   color: white;
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
   monospace;
@@ -101,8 +117,9 @@ button:active {
 
 .intradayView {
   width: 100%;
+  height: 100%;
   box-sizing: border-box;
-  padding: 1em;
+  /* padding: 1em; */
 }
 
 .light {
@@ -114,5 +131,5 @@ button:active {
 }
 
 .intradayChartWrapper {
-  height: 85vh;
+  height: 100%;
 }
