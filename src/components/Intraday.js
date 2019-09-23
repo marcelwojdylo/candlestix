@@ -18,15 +18,15 @@ export class Intraday extends Component {
         apiTimeoutsElapsed: 0,
     }
 
-    // componentDidMount = () => {
-    //     const {symbol, interval, outputsize} = this.state;
-    //     this.fetchDataFromApi(symbol, interval, outputsize)
-    // }
+    componentDidMount = () => {
+        const {symbol, interval, outputsize} = this.state;
+        this.fetchDataFromApi(symbol, interval, outputsize)
+    }
 
     
 
-    fetchDataFromApi = (symbol, interval, outputsize, drawVWAP, draw50SMA, draw200SMA) => {
-        let intradayData, vwapData, sma50Data, sma200Data, convertedData;
+    fetchDataFromApi = (symbol, interval, outputsize) => {
+        let intradayData, vwapData, convertedData;
         this.setState({
             apiCallStatus: "fetching intraday prices",
             initialRequestSent: true,
@@ -34,69 +34,35 @@ export class Intraday extends Component {
         clearTimeout(this.apiTimeoutTicker)
         alphaVantageService.getIntraday(symbol, interval, outputsize)
         .then(response => {
+            // console.log("Intraday.js intraday response", response);
             intradayData = response;
             this.setState({
                 apiTimeoutsElapsed: 0,
+                apiCallStatus: "fetching VWAP",
             })
-            if (drawVWAP) {
-                this.setState({
-                    apiCallStatus: "fetching VWAP",
-                })
-                return alphaVantageService.getVWAP(symbol, interval);
-            }
+            return alphaVantageService.getVWAP(symbol, interval);
         })
         .then(response => {
-            if (drawVWAP) {
-                vwapData = response;
-            } else {
-                vwapData = null;
-            }
-            if (draw50SMA) {
-                this.setState({
-                    apiCallStatus: "fetching 50SMA"
-                })
-                return alphaVantageService.getSMA(symbol, interval, "50");
-            }
-        })
-        .then(response => {
-            if (draw50SMA) {
-                sma50Data = response;
-            } else {
-                sma50Data = null
-            }
-            if (draw200SMA) {
-                this.setState({
-                    apiCallStatus: "fetching 200SMA"
-                })
-                return alphaVantageService.getSMA(symbol, interval, "200")
-            }
-        })
-        .then(response => {
-            if (draw200SMA) {
-                sma200Data = response;
-            } else {
-                sma200Data = null;
-            }
+            vwapData = response;
             convertedData = dataConverter.convertForCharting(
                 intradayData,
                 vwapData, 
-                sma50Data, 
-                sma200Data
             );
-            // console.log("Intraday.fetchDataFromApi data after conversion for charting", convertedData);
+            // console.log("Intraday.js fetchDataFromApi data after conversion for charting", convertedData);
             this.setState({
                 chartData: convertedData,
                 apiCallStatus: "idle",
                 dataReady: true,
             })
+            
         })
         .catch(error => {
-            // console.log(error);
+            console.log(error);
             this.apiTimeoutTicker = setInterval(() => {
                 // console.log("Intraday.js state.apiTimeout", this.state.apiTimeout)
                 if (this.state.apiTimeoutsElapsed < 3) {
                     if (this.state.apiTimeout === 0) {
-                        this.fetchDataFromApi(symbol, interval, outputsize, drawVWAP, draw50SMA, draw200SMA)
+                        this.fetchDataFromApi(symbol, interval, outputsize)
                         this.setState({
                             apiTimeout: 60,
                             apiTimeoutsElapsed: this.state.apiTimeoutsElapsed+1
@@ -122,8 +88,7 @@ export class Intraday extends Component {
     handleSubmit = (event) => {
         event.preventDefault();
         const {symbol, interval, outputsize} = this.state;
-        const {drawVWAP, draw50SMA, draw200SMA} = event.target;
-        this.fetchDataFromApi(symbol, interval, outputsize, drawVWAP.checked, draw50SMA.checked, draw200SMA.checked)
+        this.fetchDataFromApi(symbol, interval, outputsize)
         this.setState({
             dataReady: false,
         })

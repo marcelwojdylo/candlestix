@@ -48,7 +48,7 @@ export class IntradayChartWrapper extends Component {
                             height={height}
                             chartData={chartData}
                             cols={{
-                                firstVisible:0, 
+                                firstVisible:chartData.firstIndexWithLatestDate, 
                                 lastVisible: chartData.intradayData.length,
                             }} 
                             mode={displayMode}/>

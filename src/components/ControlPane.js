@@ -17,16 +17,6 @@ export class ControlPane extends Component {
                         <option value="30min">30 minutes</option>
                         <option value="60min">60 minutes</option>
                     </select>
-                    <input type="checkbox" name="drawVWAP" defaultChecked></input>
-                    VWAP
-                    <input type="checkbox" name="draw50SMA"></input>
-                    50SMA
-                    <input type="checkbox" name="draw200SMA"></input>
-                    200SMA
-                    {/* <select name="outputsize" value={outputsize} onChange={handleChange}>
-                        <option value="compact">compact</option>
-                        <option value="full">full</option>
-                    </select> */}
                     <button type="submit">view</button>
                 </form>
             </div>

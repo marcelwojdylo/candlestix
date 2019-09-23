@@ -4,8 +4,6 @@ export default function intradayPriceChart (p) {
     let canvasHeight = 0;
     let intradayData;
     let vwapData;
-    let sma50Data;
-    let sma200Data;
     let priceChartDimensions;
     let volumeChartDimensions;
     let robotoThin;
@@ -30,8 +28,6 @@ export default function intradayPriceChart (p) {
         if (chartData) {
             intradayData = chartData.intradayData;
             vwapData = chartData.vwapData;
-            sma50Data = chartData.sma50Data;
-            sma200Data = chartData.sma200Data;
         }
         
         if (mode) {
@@ -62,7 +58,7 @@ export default function intradayPriceChart (p) {
                 p.background(style.backgroundColor);
             }
 
-                //TODO: Uncouple drawing prices from drawing curves
+            //TODO: Uncouple drawing prices from drawing curves
             const {firstVisible, lastVisible} = columnsVisible;
             // console.log("p.draw: colsVisible", firstVisible,lastVisible)
             const intradayToDraw = trimData(firstVisible,lastVisible,intradayData);
@@ -72,9 +68,7 @@ export default function intradayPriceChart (p) {
             // console.log("p.draw: intradayToDraw", intradayToDraw)
             const vwapToDraw = trimData(firstVisible,lastVisible,vwapData);
             // console.log("p.draw: vwapToDraw", vwapToDraw);
-            const sma50ToDraw = trimData(firstVisible,lastVisible,sma50Data);
-            const sma200ToDraw = trimData(firstVisible, lastVisible, sma200Data)
-            drawPriceChart(intradayToDraw, vwapToDraw, sma50ToDraw, sma200ToDraw, priceDomain);
+            drawPriceChart(intradayToDraw, vwapToDraw, priceDomain);
             drawVolumeChart(intradayToDraw, volumeDomain);
             shouldUpdate = false;
         }
@@ -94,10 +88,6 @@ export default function intradayPriceChart (p) {
         volumeBarStrokeWeight: 1.4,
         vwapStrokeColor: [255, 204, 0],
         vwapStrokeWeight: 1.2,
-        sma50StrokeColor: [0, 114, 255],
-        sma50StrokeWeight: 0.5,
-        sma200StrokeColor: [6, 158, 209],
-        sma200StrokeWeight: 0.8,
         priceLabelsFontSize: 11,
         timeLabelsFontSize: 11,
         curveLabelsFontSize: 10,
@@ -118,10 +108,6 @@ export default function intradayPriceChart (p) {
         red: [209, 19, 57],
         vwapStrokeColor: [237, 130, 0],
         vwapStrokeWeight: 1.5,
-        sma50StrokeColor: [16, 224, 176],
-        sma50StrokeWeight: 0.5,
-        sma200StrokeColor: [16, 224, 92],
-        sma200StrokeWeight: 0.5,
         priceLabelsFontSize: 11,
         timeLabelsFontSize: 11,
         curveLabelsFontSize: 10,
@@ -130,33 +116,25 @@ export default function intradayPriceChart (p) {
     
     function setPriceChartDimensions () {
         return {
-            marginLeft: canvasWidth*0.01,
+            marginLeft: 0,
             marginTop: 0,
-            width: canvasWidth*0.99-50,
+            width: canvasWidth*0.99-35,
             height: canvasHeight*0.67,
         }
     }
     
     function setVolumeChartDimensions () {
         return {
-            marginLeft: canvasWidth*0.01,
+            marginLeft: 0,
             marginTop: priceChartDimensions.marginTop+priceChartDimensions.height+canvasHeight*0.05,
-            width: canvasWidth*0.99-50,
+            width: canvasWidth*0.99-35,
             height: canvasHeight*0.20,
         }
     }
     
-    function drawPriceChart(intradayToDraw, vwapToDraw, sma50ToDraw, sma200ToDraw, priceDomain) {
+    function drawPriceChart(intradayToDraw, vwapToDraw, priceDomain) {
         drawPriceChartBackground();
-        if (sma50ToDraw !== null) {
-            draw50SMAPlot(sma50ToDraw, priceDomain);
-        }
-        if (sma200ToDraw !== null) {
-            draw200SMAPlot(sma200ToDraw, priceDomain);
-        }
-        if (vwapToDraw !== null) {
-            drawVWAPPlot(vwapToDraw, priceDomain);
-        }
+        drawVWAPPlot(vwapToDraw, priceDomain);
         drawTimeLabels(intradayToDraw);
         drawPriceThresholds(priceDomain);
         drawCandlesticks(intradayToDraw, priceDomain);
@@ -190,102 +168,55 @@ export default function intradayPriceChart (p) {
                 )
             }
         }
-        const lastVWAPValue = vwapToDraw[vwapToDraw.length-1];
-        const lastVWAPPOS = (lastVWAPValue-priceDomain.min)/(priceDomain.max-priceDomain.min)
-        const labelPosition = {
-            x: priceChartDimensions.marginLeft+priceChartDimensions.width+5,
-            y: priceChartDimensions.marginTop+priceChartDimensions.height-lastVWAPPOS*priceChartDimensions.height
-        }
-        p.fill(...style.vwapStrokeColor);
-        p.strokeWeight(0);
-        p.textAlign(p.LEFT);
-        p.textFont(robotoThin, style.curveLabelsFontSize);
-        p.text("VWAP", labelPosition.x, labelPosition.y);
-    }
-    function draw50SMAPlot (sma50ToDraw, priceDomain) {
-        const {length} = sma50ToDraw;
-        for (let i = 0; i < length; i++) {
-            const thisPOS = (sma50ToDraw[i]-priceDomain.min)/(priceDomain.max-priceDomain.min)
-            const nextPOS = (sma50ToDraw[i+1]-priceDomain.min)/(priceDomain.max-priceDomain.min)
-            if (
-                thisPOS > 0 && thisPOS < 1 &&
-                nextPOS > 0 && nextPOS < 1 
-            ) {
-                const thisColumnSpan = getColumnSpan(i, length);
-                const nextColumnSpan = getColumnSpan(i+1, length);
-                p.stroke(...style.sma50StrokeColor);
-                p.strokeWeight(style.sma50StrokeWeight);
-                p.line(
-                    thisColumnSpan.middle, priceChartDimensions.marginTop+priceChartDimensions.height-thisPOS*priceChartDimensions.height,
-                    nextColumnSpan.middle, priceChartDimensions.marginTop+priceChartDimensions.height-nextPOS*priceChartDimensions.height
-                    )
-            }
-        }
-        const last50SMAValue = sma50ToDraw[sma50ToDraw.length-1];
-        const lastSMAPOS = (last50SMAValue-priceDomain.min)/(priceDomain.max-priceDomain.min)
-        const labelPosition = {
-            x: priceChartDimensions.marginLeft+priceChartDimensions.width+5,
-            y: priceChartDimensions.marginTop+priceChartDimensions.height-lastSMAPOS*priceChartDimensions.height
-        }
-        p.fill(...style.sma50StrokeColor);
-        p.strokeWeight(0);
-        p.textFont(robotoThin, style.curveLabelsFontSize);
-        p.textAlign(p.LEFT);
-        p.text("50SMA", labelPosition.x, labelPosition.y);
-    }
-    function draw200SMAPlot (sma200ToDraw, priceDomain) {
-        const {length} = sma200ToDraw;
-        for (let i = 0; i < length-1; i++) {
-            const thisPOS = (sma200ToDraw[i]-priceDomain.min)/(priceDomain.max-priceDomain.min)
-            const nextPOS = (sma200ToDraw[i+1]-priceDomain.min)/(priceDomain.max-priceDomain.min)
-            if (
-                thisPOS > 0 && thisPOS < 1 &&
-                nextPOS > 0 && nextPOS < 1     
-            ){
-                const thisColumnSpan = getColumnSpan(i, length);
-                const nextColumnSpan = getColumnSpan(i+1, length);
-                p.stroke(...style.sma200StrokeColor);
-                p.strokeWeight(style.sma200StrokeWeight);
-                p.line(
-                    thisColumnSpan.middle, priceChartDimensions.marginTop+priceChartDimensions.height-thisPOS*priceChartDimensions.height,
-                nextColumnSpan.middle, priceChartDimensions.marginTop+priceChartDimensions.height-nextPOS*priceChartDimensions.height
-                )
-            }
-        }
-        const last200SMAValue = sma200ToDraw[sma200ToDraw.length-1];
-        const lastSMAPOS = (last200SMAValue-priceDomain.min)/(priceDomain.max-priceDomain.min)
-        const labelPosition = {
-            x: priceChartDimensions.marginLeft+priceChartDimensions.width+5,
-            y: priceChartDimensions.marginTop+priceChartDimensions.height-lastSMAPOS*priceChartDimensions.height
-        }
-        p.fill(...style.sma200StrokeColor);
-        p.strokeWeight(0);
-        p.textFont(robotoThin, style.curveLabelsFontSize);
-        p.textAlign(p.LEFT);
-        p.text("200SMA", labelPosition.x, labelPosition.y);
     }
     
     function drawTimeLabels (intradayToDraw) {
         for (let i = 0; i<intradayToDraw.length; i++) {
             const timestamp = intradayToDraw[i].timestamp;
             const minutes = parseInt(timestamp.slice(14,16));
-            const step = 15;
-            if (minutes % step === 0 || minutes === 0) {
-                const columnSpan = getColumnSpan(i, intradayToDraw.length);
-                const labelAnchor = {x: columnSpan.middle, y: priceChartDimensions.marginTop+priceChartDimensions.height+20}
-                const timeIndicator = {
-                    x: columnSpan.middle,
-                    topY: priceChartDimensions.marginTop,
-                    bottomY: priceChartDimensions.marginTop+priceChartDimensions.height
+            const moreThanOneDayVisible = columnsVisible.lastVisible-columnsVisible.firstVisible > 390 ? true : false;
+            const isFullHour = minutes === 0 ? true : false;
+            const isFullQuarter = minutes === 0 || minutes % 15 === 0 ? true : false;
+            if (moreThanOneDayVisible) {
+                if (isFullHour) {
+                    const columnSpan = getColumnSpan(i, intradayToDraw.length);
+                    const labelAnchor = {x: columnSpan.middle, y: priceChartDimensions.marginTop+priceChartDimensions.height+20}
+                    const timeIndicator = {
+                        x: columnSpan.middle,
+                        topY: priceChartDimensions.marginTop,
+                        bottomY: priceChartDimensions.marginTop+priceChartDimensions.height
+                    }
+                    p.stroke(...style.verticalIndicatorColor);
+                    p.strokeWeight(style.verticalindicatorStrokeWeight)
+                    p.line(timeIndicator.x,timeIndicator.topY,timeIndicator.x,timeIndicator.bottomY)
+                    p.noStroke();
+                    p.fill(...style.labelTextColor)
+                    p.textAlign(p.CENTER);
+                    p.textFont(robotoThin, style.timeLabelsFontSize);
+                    p.text(timestamp.slice(11,16), labelAnchor.x, labelAnchor.y)
                 }
-                p.stroke(...style.verticalIndicatorColor);
-                p.strokeWeight(style.verticalindicatorStrokeWeight)
-                p.line(timeIndicator.x,timeIndicator.topY,timeIndicator.x,timeIndicator.bottomY)
-                p.noStroke();
-                p.fill(...style.labelTextColor)
-                p.textAlign(p.CENTER);
-                p.textFont(robotoThin, style.timeLabelsFontSize);
-                p.text(timestamp.slice(11,16), labelAnchor.x, labelAnchor.y)
+            } else {
+                if (isFullQuarter) {
+                    const columnSpan = getColumnSpan(i, intradayToDraw.length);
+                    const labelAnchor = {x: columnSpan.middle, y: priceChartDimensions.marginTop+priceChartDimensions.height+20}
+                    const timeIndicator = {
+                        x: columnSpan.middle,
+                        topY: priceChartDimensions.marginTop,
+                        bottomY: priceChartDimensions.marginTop+priceChartDimensions.height
+                    }
+                    p.stroke(...style.verticalIndicatorColor);
+                    p.strokeWeight(style.verticalindicatorStrokeWeight)
+                    p.line(timeIndicator.x,timeIndicator.topY,timeIndicator.x,timeIndicator.bottomY)
+                    p.noStroke();
+                    p.fill(...style.labelTextColor)
+                    p.textAlign(p.CENTER);
+                    p.textFont(robotoThin, style.timeLabelsFontSize);
+                    p.text(timestamp.slice(11,16), labelAnchor.x, labelAnchor.y)
+
+                }
+            }
+
+            if (minutes % 15 === 0 || minutes === 0) {
             }
         }
     }
@@ -294,32 +225,46 @@ export default function intradayPriceChart (p) {
         const priceThresholds =  getPriceThresholds(priceDomain);
         for (let threshold of priceThresholds) {
             const percentageOfSpread = (threshold-priceDomain.min)/(priceDomain.max-priceDomain.min)
-            const priceLabelAnchor = {
-                x: priceChartDimensions.marginLeft+priceChartDimensions.width+5,
-                y: priceChartDimensions.marginTop+priceChartDimensions.height-percentageOfSpread*priceChartDimensions.height
+            if (percentageOfSpread > 0) {
+                const priceLabelAnchor = {
+                    x: priceChartDimensions.marginLeft+priceChartDimensions.width+5,
+                    y: priceChartDimensions.marginTop+priceChartDimensions.height-percentageOfSpread*priceChartDimensions.height
+                }
+                const priceLabelIndicator = {
+                    xLeft: priceChartDimensions.marginLeft,
+                    xRight: priceChartDimensions.marginLeft+priceChartDimensions.width,
+                    y: priceChartDimensions.marginTop+priceChartDimensions.height-percentageOfSpread*priceChartDimensions.height
+                }
+                p.noStroke();
+                p.fill(...style.labelTextColor);
+                p.textAlign(p.LEFT);
+                p.textFont(robotoThin, style.priceLabelsFontSize);
+                p.text("$"+threshold.toString(), priceLabelAnchor.x, priceLabelAnchor.y);
+                
+                p.stroke(...style.horizontalIndicatorColor);
+                p.strokeWeight(style.horizontalindicatorStrokeWeight)
+                p.line(priceLabelIndicator.xLeft, priceLabelIndicator.y, priceLabelIndicator.xRight, priceLabelIndicator.y)
             }
-            const priceLabelIndicator = {
-                xLeft: priceChartDimensions.marginLeft,
-                xRight: priceChartDimensions.marginLeft+priceChartDimensions.width,
-                y: priceChartDimensions.marginTop+priceChartDimensions.height-percentageOfSpread*priceChartDimensions.height
-            }
-            p.noStroke();
-            p.fill(...style.labelTextColor);
-            p.textAlign(p.LEFT);
-            p.textFont(robotoThin, style.priceLabelsFontSize);
-            p.text("$"+threshold.toString(), priceLabelAnchor.x, priceLabelAnchor.y);
-            
-            p.stroke(...style.horizontalIndicatorColor);
-            p.strokeWeight(style.horizontalindicatorStrokeWeight)
-            p.line(priceLabelIndicator.xLeft, priceLabelIndicator.y, priceLabelIndicator.xRight, priceLabelIndicator.y)
         }
     }
 
     function getPriceThresholds (priceDomain) {
-        let lowestRoundPrice = Math.ceil(priceDomain.min);
-        let highestRoundPrice = Math.floor(priceDomain.max);
+        let lowestRoundPrice = Math.floor(priceDomain.min);
+        let highestRoundPrice = Math.ceil(priceDomain.max);
         let thresholds = [];
-        let step = highestRoundPrice-lowestRoundPrice<3 ? 0.5 : 1
+        let spread = highestRoundPrice-lowestRoundPrice;
+        let step;
+        if (spread < 3) {
+            step = 0.25
+        } else if (spread < 5) {
+            step = 0.5;
+        } else if (spread < 30) {
+            step = 1;
+        } else if (spread < 40) {
+            step = 2
+        } else {
+            step = 5;
+        }
         for (let i = lowestRoundPrice; i<=highestRoundPrice; i+=step) {
             thresholds.push(i)
         }

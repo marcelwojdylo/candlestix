@@ -1,28 +1,17 @@
 class DataConverter {
 
-    convertForCharting (intradayData, vwapData=null, sma50Data=null, sma200Data=null) {
+    convertForCharting (intradayData, vwapData) {
 
-        intradayData = this.truncateToTodaysData(intradayData);
+        // intradayData = this.truncateToTodaysData(intradayData);
         intradayData = this.parseIntraday(intradayData);
         intradayData = intradayData.reverse();
         
-        if (vwapData !== null) {
-            vwapData = this.truncateToTodaysData(vwapData);
-            vwapData = this.parseVWAP(vwapData);
-            vwapData = vwapData.reverse();
-        }
+        // vwapData = this.truncateToTodaysData(vwapData);
+        vwapData = this.parseVWAP(vwapData);
+        vwapData = vwapData.reverse();
         
-        if (sma50Data !== null) {
-            sma50Data = this.truncateToTodaysData(sma50Data);
-            sma50Data = this.parseSMA(sma50Data);
-            sma50Data = sma50Data.reverse();
-        }
-        
-        if (sma200Data !== null) {
-            sma200Data = this.truncateToTodaysData(sma200Data);
-            sma200Data = this.parseSMA(sma200Data);
-            sma200Data = sma200Data.reverse();
-        }
+        const firstIndexWithLatestDate = this.getFirstIndexWithLatestDate(intradayData);
+
         
         // console.log(
         //     "DataConverter.convertForCharting:",
@@ -30,26 +19,27 @@ class DataConverter {
         //     intradayData,
         //     "vwapData",
         //     vwapData,
-        //     "sma50Data",
-        //     sma50Data
+        //     "firstIndexWithLatestDate",
+        //     firstIndexWithLatestDate
         // )
 
         return {
             intradayData: intradayData,
             vwapData: vwapData,
-            sma50Data: sma50Data,
-            sma200Data: sma200Data,
+            firstIndexWithLatestDate: firstIndexWithLatestDate,
         }
     }
 
 
-    truncateToTodaysData = (data) => {
-        const todaysData = [];
-        const latestDate = data[0][0].slice(0,10);
-        for (let i = 0; data[i][0].slice(0,10) === latestDate; i++) {
-            todaysData.push(data[i])
+    getFirstIndexWithLatestDate = (data) => {
+        let firstIndexWithLatestDate = -1;
+        const latestDate = data[data.length-1].timestamp.slice(0,10);
+        for (let i = 0; firstIndexWithLatestDate === -1; i++) {
+            if (data[i].timestamp.slice(0,10) === latestDate) {
+                firstIndexWithLatestDate = i;
+            }
         }
-        return todaysData;
+        return firstIndexWithLatestDate;
     }
 
     parseIntraday = (data) => {
@@ -73,14 +63,6 @@ class DataConverter {
         let parsedData = [];
         for (let i = 0; i<data.length; i++) {
             parsedData.push(parseFloat(data[i][1].VWAP))
-        }
-        return parsedData;
-    }
-
-    parseSMA = (data) => {
-        let parsedData = [];
-        for (let i = 0; i<data.length; i++) {
-            parsedData.push(parseFloat(data[i][1].SMA))
         }
         return parsedData;
     }
