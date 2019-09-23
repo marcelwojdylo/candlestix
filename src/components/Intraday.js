@@ -30,7 +30,6 @@ export class Intraday extends Component {
         this.setState({
             apiCallStatus: "fetching intraday prices",
             initialRequestSent: true,
-            apiTimeout: 60,
         })
         clearTimeout(this.apiTimeoutTicker)
         alphaVantageService.getIntraday(symbol, interval, outputsize)
