@@ -5,6 +5,7 @@ export default function intradayPriceChart (p) {
     let intradayData;
     let vwapData;
     let priceChartDimensions;
+    let dataptsPerDate;
     let volumeChartDimensions;
     let robotoThin;
     let style;
@@ -28,6 +29,7 @@ export default function intradayPriceChart (p) {
         if (chartData) {
             intradayData = chartData.intradayData;
             vwapData = chartData.vwapData;
+            dataptsPerDate = chartData.datapointsPerDate;
         }
         
         if (mode) {
@@ -46,7 +48,6 @@ export default function intradayPriceChart (p) {
         // p.noLoop();
         p.textFont(robotoThin, 10);
     };
-    
     
     p.draw = function () {
         if (p.keyIsPressed) {
@@ -80,7 +81,7 @@ export default function intradayPriceChart (p) {
         labelTextColor: [96, 141, 214],
         verticalIndicatorColor: [59, 86, 130, 70],
         verticalindicatorStrokeWeight: 0.5,
-        horizontalIndicatorColor: [171, 207, 237, 90],
+        horizontalIndicatorColor: [130, 178, 217],
         horizontalindicatorStrokeWeight: 0.5,
         green: [52, 224, 170],
         red: [201, 60, 0],
@@ -91,6 +92,9 @@ export default function intradayPriceChart (p) {
         priceLabelsFontSize: 11,
         timeLabelsFontSize: 11,
         curveLabelsFontSize: 10,
+        dayIndicatorColor: [14, 89, 150, 80],
+        dayIndicatorStrokeWeight: 1,
+        dayLabelTextColor: [14, 89, 150],
     }
     let styleLight = {
         backgroundColor: [240],
@@ -169,54 +173,82 @@ export default function intradayPriceChart (p) {
             }
         }
     }
-    
-    function drawTimeLabels (intradayToDraw) {
-        for (let i = 0; i<intradayToDraw.length; i++) {
-            const timestamp = intradayToDraw[i].timestamp;
-            const minutes = parseInt(timestamp.slice(14,16));
-            const moreThanOneDayVisible = columnsVisible.lastVisible-columnsVisible.firstVisible > 390 ? true : false;
-            const isFullHour = minutes === 0 ? true : false;
-            const isFullQuarter = minutes === 0 || minutes % 15 === 0 ? true : false;
-            if (moreThanOneDayVisible) {
-                if (isFullHour) {
-                    const columnSpan = getColumnSpan(i, intradayToDraw.length);
-                    const labelAnchor = {x: columnSpan.middle, y: priceChartDimensions.marginTop+priceChartDimensions.height+20}
-                    const timeIndicator = {
-                        x: columnSpan.middle,
-                        topY: priceChartDimensions.marginTop,
-                        bottomY: priceChartDimensions.marginTop+priceChartDimensions.height
-                    }
-                    p.stroke(...style.verticalIndicatorColor);
-                    p.strokeWeight(style.verticalindicatorStrokeWeight)
-                    p.line(timeIndicator.x,timeIndicator.topY,timeIndicator.x,timeIndicator.bottomY)
-                    p.noStroke();
-                    p.fill(...style.labelTextColor)
-                    p.textAlign(p.CENTER);
-                    p.textFont(robotoThin, style.timeLabelsFontSize);
-                    p.text(timestamp.slice(11,16), labelAnchor.x, labelAnchor.y)
-                }
-            } else {
-                if (isFullQuarter) {
-                    const columnSpan = getColumnSpan(i, intradayToDraw.length);
-                    const labelAnchor = {x: columnSpan.middle, y: priceChartDimensions.marginTop+priceChartDimensions.height+20}
-                    const timeIndicator = {
-                        x: columnSpan.middle,
-                        topY: priceChartDimensions.marginTop,
-                        bottomY: priceChartDimensions.marginTop+priceChartDimensions.height
-                    }
-                    p.stroke(...style.verticalIndicatorColor);
-                    p.strokeWeight(style.verticalindicatorStrokeWeight)
-                    p.line(timeIndicator.x,timeIndicator.topY,timeIndicator.x,timeIndicator.bottomY)
-                    p.noStroke();
-                    p.fill(...style.labelTextColor)
-                    p.textAlign(p.CENTER);
-                    p.textFont(robotoThin, style.timeLabelsFontSize);
-                    p.text(timestamp.slice(11,16), labelAnchor.x, labelAnchor.y)
 
+
+    function drawTimeLabels (intradayToDraw) {
+        if (intradayToDraw.length <= dataptsPerDate*1.5) {
+            for (let i = 0; i<intradayToDraw.length; i++) {
+                const {timestamp} = intradayToDraw[i];
+                const minute = parseInt(intradayToDraw[i].timestamp.minute);
+                const isFullQuarter = minute === 0 || minute % 15 === 0;
+                const columnSpan = getColumnSpan(i, intradayToDraw.length);
+                const timeIndicator = {
+                    x: columnSpan.middle,
+                    topY: priceChartDimensions.marginTop,
+                    bottomY: priceChartDimensions.marginTop+priceChartDimensions.height
+                }
+                if (isFullQuarter) {
+                    const labelAnchor = {x: columnSpan.middle, y: priceChartDimensions.marginTop+priceChartDimensions.height+20}
+                    p.stroke(...style.verticalIndicatorColor);
+                    p.strokeWeight(style.verticalindicatorStrokeWeight)
+                    p.line(timeIndicator.x,timeIndicator.topY,timeIndicator.x,timeIndicator.bottomY)
+                    p.noStroke();
+                    p.fill(...style.labelTextColor)
+                    p.textAlign(p.CENTER);
+                    p.textFont(robotoThin, style.timeLabelsFontSize);
+                    p.text(timestamp.hour+":"+timestamp.minute, labelAnchor.x, labelAnchor.y)
+                }
+                if (timestamp.hour === "09" && timestamp.minute === "31") {
+                    const labelAnchor = {
+                        x: columnSpan.middle + 5,
+                        y: priceChartDimensions.marginTop + priceChartDimensions.height -3,
+                    }
+                    p.stroke(...style.dayIndicatorColor);
+                    p.strokeWeight(style.dayIndicatorStrokeWeight);
+                    p.line(timeIndicator.x,timeIndicator.topY,timeIndicator.x,timeIndicator.bottomY)
+
+                    p.noStroke();
+                    p.fill(...style.dayLabelTextColor);
+                    p.textAlign(p.LEFT);
+                    p.text(timestamp.date, labelAnchor.x, labelAnchor.y)
                 }
             }
+        } else {
+            for (let i = 0; i<intradayToDraw.length;i++) {
+                const {timestamp} = intradayToDraw[i];
+                const minute = parseInt(intradayToDraw[i].timestamp.minute);
+                const isFullHour = minute === 0;
+                const columnSpan = getColumnSpan(i, intradayToDraw.length);
+                const timeIndicator = {
+                    x: columnSpan.middle,
+                    topY: priceChartDimensions.marginTop,
+                    bottomY: priceChartDimensions.marginTop+priceChartDimensions.height
+                }
+                if (isFullHour) {
+                    const labelAnchor = {x: columnSpan.middle, y: priceChartDimensions.marginTop+priceChartDimensions.height+20}
+                    p.stroke(...style.verticalIndicatorColor);
+                    p.strokeWeight(style.verticalindicatorStrokeWeight)
+                    p.line(timeIndicator.x,timeIndicator.topY,timeIndicator.x,timeIndicator.bottomY)
+                    p.noStroke();
+                    p.fill(...style.labelTextColor)
+                    p.textAlign(p.CENTER);
+                    p.textFont(robotoThin, style.timeLabelsFontSize);
+                    p.text(timestamp.hour+":"+timestamp.minute, labelAnchor.x, labelAnchor.y)
+                }
+                if (timestamp.hour === "09" && timestamp.minute === "31") {
+                    const labelAnchor = {
+                        x: columnSpan.middle + 5,
+                        y: priceChartDimensions.marginTop + priceChartDimensions.height -3,
+                    }
+                    p.stroke(...style.dayIndicatorColor);
+                    p.strokeWeight(style.dayIndicatorStrokeWeight);
+                    p.line(timeIndicator.x,timeIndicator.topY,timeIndicator.x,timeIndicator.bottomY);
 
-            if (minutes % 15 === 0 || minutes === 0) {
+                    p.noStroke();
+                    p.fill(...style.dayLabelTextColor);
+                    p.textAlign(p.LEFT);
+                    p.text(timestamp.date, labelAnchor.x, labelAnchor.y)
+                }
             }
         }
     }
@@ -334,8 +366,8 @@ export default function intradayPriceChart (p) {
     
     function drawVolumeChartTimeIndicators (intradayToDraw) {
         for (let i = 0; i<intradayToDraw.length; i++) {
-            const timestamp = intradayToDraw[i]["timestamp"];
-            if (parseInt(timestamp.slice(14,16)) % 5 === 0) {
+            const timestamp = intradayToDraw[i].timestamp;
+            if (parseInt(timestamp.minute) % 5 === 0) {
                 const columnSpan = getColumnSpan(i, intradayToDraw.length);
                 const timeIndicator = {
                     x: columnSpan.middle,
@@ -386,7 +418,7 @@ export default function intradayPriceChart (p) {
         } else if (spread > 150000) {
             step = 50000
         } else {
-            step = 10000
+            step = 25000
         }
         let lowestRoundPrice = Math.floor((volumeDomain.min+step)/step)*step;
         let highestRoundPrice = Math.floor((volumeDomain.max-step)/step)*step;
@@ -468,7 +500,7 @@ export default function intradayPriceChart (p) {
     
     function keyPressed () {
         const numberOfColumns = columnsVisible.lastVisible-columnsVisible.firstVisible;
-        const step = parseInt(Math.ceil(numberOfColumns/100));
+        const step = parseInt(Math.ceil(numberOfColumns/50));
 
         if (p.keyCode === p.DOWN_ARROW) {
             if (columnsVisible.firstVisible > step) {
@@ -487,11 +519,19 @@ export default function intradayPriceChart (p) {
             columnsVisible.lastVisible-=step;
             // console.log("keyPressed: DOWN_ARROW pressed, colsVisible:", columnsVisible.firstVisible, columnsVisible.lastVisible)
         } else if (p.keyCode === p.LEFT_ARROW && columnsVisible.firstVisible>0) {
-            columnsVisible.firstVisible--;
-            columnsVisible.lastVisible--
+            if (columnsVisible.firstVisible > step) {
+                columnsVisible.firstVisible-=step;
+            } else {
+                columnsVisible.firstVisible = 0;
+            }
+            columnsVisible.lastVisible-=step;
         } else if (p.keyCode === p.RIGHT_ARROW && columnsVisible.lastVisible<intradayData.length) {
-            columnsVisible.firstVisible++;
-            columnsVisible.lastVisible++;
+            if (intradayData.length - columnsVisible.firstVisible > step) {
+                columnsVisible.lastVisible+=step;
+            } else {
+                columnsVisible.lastVisible=intradayData.length
+            }
+            columnsVisible.firstVisible+=step;
         }
         shouldUpdate = true;
         p.redraw();

@@ -48,7 +48,7 @@ export class Intraday extends Component {
                 intradayData,
                 vwapData, 
             );
-            // console.log("Intraday.js fetchDataFromApi data after conversion for charting", convertedData);
+            console.log("Intraday.js fetchDataFromApi data after conversion for charting", convertedData);
             this.setState({
                 chartData: convertedData,
                 apiCallStatus: "idle",

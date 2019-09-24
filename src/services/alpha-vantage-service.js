@@ -9,12 +9,12 @@ class AlphaVantageService {
         })
     }
 
-    apiKey = 'RYWUIH6FGCEUHWV6';
+    apiKey = 'K63ZIT40ER2Y7MOY';
     apiKey2 = 'YIUDIQ54E7V7LOQE';
     
     getIntraday = async (symbol, interval, outputsize = 'full') => {
         const data = await this.api.get(
-            `?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&outputsize=${outputsize}&datatype=json&apikey=${this.apiKey2}`
+            `?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&outputsize=${outputsize}&datatype=json&apikey=${this.apiKey}`
         )
         .then(response => response.data[`Time Series (${interval})`])
         .catch(error => console.log(error))
@@ -23,7 +23,7 @@ class AlphaVantageService {
 
     getVWAP = async (symbol, interval) => {
         const data = await this.api.get(
-            `?function=VWAP&symbol=${symbol}&interval=${interval}&apikey=${this.apiKey2}`
+            `?function=VWAP&symbol=${symbol}&interval=${interval}&apikey=${this.apiKey}`
         )
         .then(response => response.data['Technical Analysis: VWAP'])
         .catch(error => console.log(error))
@@ -32,7 +32,7 @@ class AlphaVantageService {
 
     getSMA = async (symbol, interval, time_period="50", series_type="close") => {
         const data = await this.api.get(
-            `?function=SMA&symbol=${symbol}&interval=${interval}&time_period=${time_period}&series_type=${series_type}&apikey=${this.apiKey2}`
+            `?function=SMA&symbol=${symbol}&interval=${interval}&time_period=${time_period}&series_type=${series_type}&apikey=${this.apiKey}`
         )
         .then(response => response.data['Technical Analysis: SMA'])
         .catch(error => console.log(error))
