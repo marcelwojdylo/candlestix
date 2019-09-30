@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
-import Intraday from './components/Intraday.js'
+import Candlestix from './components/Candlestix.js'
 
 class App extends Component{
 
@@ -21,7 +21,7 @@ class App extends Component{
       document.body.style = 'background: black'
     return (
       <>
-        <Intraday toggleDisplayMode={this.toggleDisplayMode} displayMode={displayMode}/>
+        <Candlestix toggleDisplayMode={this.toggleDisplayMode} displayMode={displayMode}/>
       </>
     );
   }

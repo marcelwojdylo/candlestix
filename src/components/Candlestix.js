@@ -4,7 +4,7 @@ import dataConverter from '../helpers/data-converter.js'
 import ControlPane from './ControlPane.js';
 import IntradayView from './IntradayView.js';
 
-export class Intraday extends Component {
+export class Candlestix extends Component {
 
     state = {
         symbol: "ROKU",
@@ -156,4 +156,4 @@ export class Intraday extends Component {
     }
 }
 
-export default Intraday
+export default Candlestix
