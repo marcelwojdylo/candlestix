@@ -123,7 +123,7 @@ export class Candlestix extends Component {
                     : 
                         <>
                             <h3>Fetching data from AlphaVantage API, please hold.</h3>
-                            <p><b>Status: </b>{apiCallStatus}</p>
+                            <p>{apiCallStatus}</p>
                         </>
             } else {
                 return (
