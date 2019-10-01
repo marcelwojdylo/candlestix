@@ -2,6 +2,10 @@
 Candlestix enables the user to see NASDAQ intraday data for a chosen ticker and interval.
 
 [Heroku deploy](https://candlestix.herokuapp.com/)
+
+![Zoomed in](screenshots/zoomed_in.png)
+![Zoomed out](screenshots/zoomed_out.png)
+
 ## Description
 Candlestix is a single-page React app which uses axios to fetch data from [Alpha Vantage API](https://www.alphavantage.co/) according to the ticker and interval selected by the user. It contains a tool for charting said data, which was written from scratch using p5.js. It allows zooming and panning through the use of arrow keys on the user's keyboard. 
 
